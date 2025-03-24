@@ -1,15 +1,15 @@
 package com.example.money_manager;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     Button nextButton;
     Button loginButton;
     Button shutdownButton;
+    Button createAccountButton;
+    EditText passwordInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +46,9 @@ public class MainActivity extends AppCompatActivity {
         profileTextView = findViewById(R.id.profileText);
         previousButton = findViewById(R.id.prevButton);
         nextButton = findViewById(R.id.nextButton);
+        passwordInput = findViewById(R.id.passwordInput);
+        createAccountButton = findViewById(R.id.createAccountButton);
         usernames = databaseControl.getUsers();
-        SQLiteDatabase db = databaseControl.getWritableDatabase(); //
-
-        System.out.println("Fetched users in onCreate" + usernames);
         Log.d("Main Activity", "Fetched Usernames:" + usernames);
 
 
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         previousButton.setOnClickListener(v ->{
                 if (usernames.size() > 0 ) {
-                    currentIndex = (currentIndex + 1) % usernames.size();
+                    currentIndex = (currentIndex - 1 + usernames.size()) % usernames.size();
                     displayUser(currentIndex);
                 }
         });
@@ -74,9 +75,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
         loginButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
+            String username = usernameTextView.getText().toString();
+            String password = passwordInput.getText().toString();
+            int userId = databaseControl.authenticateUser(username, password);
+            if (userId != -1) { //-1 is the default value and if it doesn't change it means nothing was returned from the select
+                Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
+                intent.putExtra("user_id", userId);
+                startActivity(intent);
+                finish(); // Finishes this activity
+            } else {
+                Toast.makeText(MainActivity.this, "Invalid Password!", Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        createAccountButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, createActivity.class);
             startActivity(intent);
-            finish(); // Finishes this activity
         });
 
         shutdownButton.setOnClickListener(v -> {
@@ -106,11 +121,11 @@ public class MainActivity extends AppCompatActivity {
             ((GradientDrawable) background).setColor(randomColor);
             profileTextView.setBackground(background);
         }
-
     }
     //Generates the random color for the profile picture
     private int randomColor(){
         Random random = new Random();
         return Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
+
 }
