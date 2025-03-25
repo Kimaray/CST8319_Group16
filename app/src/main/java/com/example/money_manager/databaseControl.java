@@ -160,9 +160,7 @@ public class databaseControl extends SQLiteOpenHelper {
             String selectQuery = "SELECT " + columnUserId + " FROM " + userTable +
                     " WHERE " + columnUsername + " = ? AND " + columnPassword + " = ?";
             Cursor cursor = db.rawQuery(selectQuery, new String[]{username, password});
-
             int userId = -1;
-
             //If this exists it will move to it and set the value
             if (cursor.moveToFirst()) {
                 userId = cursor.getInt(cursor.getColumnIndex(columnUserId));
@@ -189,13 +187,11 @@ public class databaseControl extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(columnUsername, username);
             values.put(columnPassword, password);
-
             long result = db.insert(userTable, null, values);
             if (result == -1) {
                 Log.d("databaseControl", "Failed to insert user from insertUser()");
             } else {
                 Log.d ("databaseControl", "User inserted successfully");
             }
-
         }
 }

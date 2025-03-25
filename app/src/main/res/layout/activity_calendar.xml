@@ -37,6 +37,38 @@
         />
 
     <Button
+        android:id="@+id/createJournal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Journal Entry"
+        tools:layout_editor_absoluteX="202dp"
+        tools:layout_editor_absoluteY="535dp" />
+
+    <Button
+        android:id="@+id/viewJournal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Journal Entry"
+        tools:layout_editor_absoluteX="213dp"
+        tools:layout_editor_absoluteY="478dp" />
+
+    <Button
+        android:id="@+id/createEvent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Event"
+        tools:layout_editor_absoluteX="252dp"
+        tools:layout_editor_absoluteY="423dp" />
+
+    <Button
+        android:id="@+id/createGoal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Goal "
+        tools:layout_editor_absoluteX="255dp"
+        tools:layout_editor_absoluteY="583dp" />
+
+    <Button
         android:id="@+id/logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
