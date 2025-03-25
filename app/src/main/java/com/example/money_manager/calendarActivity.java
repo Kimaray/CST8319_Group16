@@ -1,9 +1,9 @@
 package com.example.money_manager;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -12,13 +12,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class CalendarActivity extends AppCompatActivity {
+public class calendarActivity extends AppCompatActivity {
+
     TextView title;
     Button logoutButton;
     int userId;
     databaseControl databaseControl;
-
-
+    CalendarView calendar;
+    TextView calendarDateText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,15 +28,22 @@ public class CalendarActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendar);
         databaseControl = new databaseControl(this);
         title = findViewById(R.id.title);
+        calendar = findViewById(R.id.calendar);
         logoutButton = findViewById(R.id.logout);
+        calendarDateText = findViewById(R.id.calendarText);
         userId = getIntent().getIntExtra("user_id",-1);
         String username = databaseControl.selectUsername(userId);
         title.setText("Welcome to Money Manager " + username +"!");
 
         logoutButton.setOnClickListener(v -> { //This is the listener for the logout button
-            Intent intent = new Intent(CalendarActivity.this, MainActivity.class);
+            Intent intent = new Intent(calendarActivity.this, MainActivity.class);
             startActivity(intent);
             finish();  // Finishes off anything in this activity before proceeding back to login screen
+        });
+
+        calendar.setOnDateChangeListener((view, year, month, day) -> {
+            String formattedDate = formatDate(year,month,day);
+            calendarDateText.setText(formattedDate);
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -44,4 +52,11 @@ public class CalendarActivity extends AppCompatActivity {
             return insets;
         });
     }
+    private String formatDate(int year, int month, int day){
+        //Have to add 1 since month starts at 0
+        month = month+1;
+        return String.format("%02d-%02d-%d",month,day,year);
+    }
+
+
 }
