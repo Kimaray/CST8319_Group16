@@ -24,13 +24,17 @@ public class databaseControl extends SQLiteOpenHelper {
     //Constraining tables and columns for events
     public static final String eventTable = "event";
     public static final String columnEventId = "event_id";
-    public static final String columnEventDate = "date";
+    public static final String columnEventMonth = "event_month";
+    public static final String columnEventDay = "event_day";
+    public static final String columnEventYear = "event_year";
     public static final String columnEventDetail = "detail";
 
     //Constraining tables and columns for journal entries
     public static final String journalTable = "journal";
     public static final String columnJournalId = "journal_id";
-    public static final String columnJournalDate= "journal_date";
+    public static final String columnJournalMonth= "journal_month";
+    public static final String columnJournalDay= "journal_day";
+    public static final String columnJournalYear= "journal_year";
     public static final String columnJournalContents = "contents";
 
     //Constraining tables and columns for transactions
@@ -38,13 +42,17 @@ public class databaseControl extends SQLiteOpenHelper {
     public static final String columnTranId = "tran_id";
     public static final String columnAmount = "amount";
     public static final String columnReason = "reason";
-    public static final String columnTranDate = "date";
+    public static final String columnTranMonth = "tran_month";
+    public static final String columnTranDay = "tran_day";
+    public static final String columnTranYear = "tran_year";
 
     //Constraining tables and columns for goals
     public static final String goalTable = "goal";
     public static final String columnGoalId = "goal_id";
     public static final String columnGoalType = "goal_type";
-    public static final String columnGoalDate = "goal_date";
+    public static final String columnGoalMonth = "goal_month";
+    public static final String columnGoalDay = "goal_day";
+    public static final String columnGoalYear= "goal_year";
     public static final String columnValue = "value";
     public static final String columnSavings = "savings";
     public static final String columnGoalDesc = "description";
@@ -58,7 +66,9 @@ public class databaseControl extends SQLiteOpenHelper {
     public static final String createJournalTable =
             "CREATE TABLE IF NOT EXISTS " + journalTable + " (" +
                     columnJournalId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    columnJournalDate + " TEXT NOT NULL, " +
+                    columnJournalMonth + " INT NOT NULL, " +
+                    columnJournalDay + " INT NOT NULL, " +
+                    columnJournalYear + " INT NOT NULL, " +
                     columnJournalContents + " TEXT NOT NULL, " +
                     columnUserId + " INTEGER NOT NULL, " +
                     columnEventId + " INTEGER, " +
@@ -68,7 +78,9 @@ public class databaseControl extends SQLiteOpenHelper {
     public static final String createEventTable =
             "CREATE TABLE IF NOT EXISTS " + eventTable + " (" +
                     columnEventId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    columnEventDate + " TEXT NOT NULL, " +
+                    columnEventMonth + " INT NOT NULL, " +
+                    columnEventDay + " INT NOT NULL, " +
+                    columnEventYear + " INT NOT NULL, " +
                     columnEventDetail + " TEXT NOT NULL, " +
                     columnUserId + " INTEGER NOT NULL, " +
                     columnTranId + " INTEGER NOT NULL, " +
@@ -82,7 +94,9 @@ public class databaseControl extends SQLiteOpenHelper {
                     columnTranId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     columnAmount + " DECIMAL(10,2) NOT NULL, " +
                     columnReason + " TEXT NOT NULL, " +
-                    columnTranDate + " TEXT NOT NULL, " +
+                    columnTranMonth + " INT NOT NULL, " +
+                    columnTranDay + " INT NOT NULL, " +
+                    columnTranYear + " INT NOT NULL, " +
                     columnUserId + " INTEGER NOT NULL, " +
                     columnEventId + " INTEGER NOT NULL, " +
                     "FOREIGN KEY(" + columnUserId + ") REFERENCES " + userTable + "(" + columnUserId + "), " +
@@ -92,7 +106,9 @@ public class databaseControl extends SQLiteOpenHelper {
             "CREATE TABLE IF NOT EXISTS " + goalTable + " (" +
                     columnGoalId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     columnGoalType + " INTEGER NOT NULL, " +
-                    columnGoalDate + " TEXT NOT NULL, " +
+                    columnGoalMonth + " INT NOT NULL, " +
+                    columnGoalDay + " INT NOT NULL, " +
+                    columnGoalYear + " INT NOT NULL, " +
                     columnValue + " DECIMAL(10,2) NOT NULL, " +
                     columnSavings + " DECIMAL(10,2) NOT NULL, " +
                     columnGoalDesc + " TEXT NOT NULL, " +

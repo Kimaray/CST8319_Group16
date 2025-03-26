@@ -42,8 +42,8 @@ public class calendarActivity extends AppCompatActivity {
         });
 
         calendar.setOnDateChangeListener((view, year, month, day) -> {
-            String formattedDate = formatDate(year,month,day);
-            calendarDateText.setText(formattedDate);
+            int processedMonth = properMonth(month);
+            calendarDateText.setText("Year: " + year + ", Month: " + processedMonth +", Day: " + day );
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -52,10 +52,10 @@ public class calendarActivity extends AppCompatActivity {
             return insets;
         });
     }
-    private String formatDate(int year, int month, int day){
+    private int properMonth(int month){
         //Have to add 1 since month starts at 0
         month = month+1;
-        return String.format("%02d-%02d-%d",month,day,year);
+        return month;
     }
 
 
