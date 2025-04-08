@@ -1,11 +1,14 @@
 package com.example.money_manager;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,63 +17,52 @@ import java.util.ArrayList;
 
 public class ViewJournalActivity extends AppCompatActivity {
 
+    TextView dateLabel, entryView;
+    Button backToCalendarButton;
     private databaseControl dbControl;
     private int userId;
-    private ListView journalListView;
-
+    int year, month, day;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_journal);
-
+        dateLabel = findViewById(R.id.viewDateLabel);
+        entryView = findViewById(R.id.entryText);
+        backToCalendarButton = findViewById(R.id.backToCalendarButton);
         dbControl = new databaseControl(this);
-        journalListView = findViewById(R.id.journalListView);
 
         // Retrieve the user_id passed from the previous activity
-        userId = getIntent().getIntExtra("user_id", -1);
+        Intent intent = getIntent();
+        userId = intent.getIntExtra("user_id", -1);
+        year = intent.getIntExtra("year", -1);
+        month = intent.getIntExtra("month", -1);
+        day = intent.getIntExtra("day", -1);
+
 
         // Get all journal entries for this user
-        ArrayList<String> journalEntries = getJournalEntries(userId);
+        ArrayList<String> entries = dbControl.getJournalEntries(userId, year, month, day);
 
-        if (journalEntries.isEmpty()) {
+        // displaying the entries
+        if (!entries.isEmpty()) {
+            StringBuilder allEntries = new StringBuilder();
+            for (int i = 0; i < entries.size(); i++) {
+                allEntries.append("• ").append(entries.get(i)).append("\n\n");
+            }
+            entryView.setText(allEntries.toString());
+        } else {
+            entryView.setText("No entries found");
+        }
+
+        if (entries.isEmpty()) {
             Toast.makeText(this, "No journal entries found", Toast.LENGTH_SHORT).show();
         }
+        backToCalendarButton.setOnClickListener(v -> {
+            Intent backIntent = new Intent(ViewJournalActivity.this, calendarActivity.class);
+            backIntent.putExtra("user_id", userId);
+            startActivity(backIntent);
+            finish();
+        });
 
-        // Display the journal entries in a ListView using a simple ArrayAdapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, journalEntries);
-        journalListView.setAdapter(adapter);
-    }
 
-    /**
-     * Retrieves all journal entries for the given user.
-     */
-    private ArrayList<String> getJournalEntries(int userId) {
-        ArrayList<String> entries = new ArrayList<>();
-        SQLiteDatabase db = dbControl.getReadableDatabase();
-
-        // Query for the journal month, day, year, and contents for the current user
-        String query = "SELECT " + databaseControl.columnJournalMonth + ", " +
-                databaseControl.columnJournalDay + ", " +
-                databaseControl.columnJournalYear + ", " +
-                databaseControl.columnJournalContents +
-                " FROM " + databaseControl.journalTable +
-                " WHERE " + databaseControl.columnUserId + " = ?";
-
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                @SuppressLint("Range") int month = cursor.getInt(cursor.getColumnIndex(databaseControl.columnJournalMonth));
-                @SuppressLint("Range") int day = cursor.getInt(cursor.getColumnIndex(databaseControl.columnJournalDay));
-                @SuppressLint("Range") int year = cursor.getInt(cursor.getColumnIndex(databaseControl.columnJournalYear));
-                @SuppressLint("Range") String contents = cursor.getString(cursor.getColumnIndex(databaseControl.columnJournalContents));
-
-                // Format the journal entry for display
-                String entry = "Date: " + month + "/" + day + "/" + year + "\n" + contents;
-                entries.add(entry);
-            }
-            cursor.close();
-        }
-        return entries;
     }
 }

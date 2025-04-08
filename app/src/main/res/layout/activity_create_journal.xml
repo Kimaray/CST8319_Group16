@@ -21,12 +21,15 @@
     <EditText
         android:id="@+id/journalContentsEditText"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter journal contents"
-        android:padding="8dp"
+        android:layout_height="200dp"
+        android:hint="Enter a journal entry..."
         app:layout_constraintTop_toBottomOf="@id/datePicker"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:background="#BBDEFB"
+        android:padding="10dp"
+        android:inputType="textMultiLine"
+        android:maxLines="10"
         android:layout_marginTop="16dp"/>
 
     <!-- Save button -->

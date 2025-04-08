@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -26,16 +27,17 @@ public class calendarActivity extends AppCompatActivity {
     databaseControl databaseControl;
     MaterialCalendarView calendarView;
     CalendarDataFetcher dataFetcher;
+    int selectedYear = 0;
+    int selectedMonth = 0;
+    int selectedDay = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
-
         // Initialize database and data fetcher
         databaseControl = new databaseControl(this);
         dataFetcher = new CalendarDataFetcher(databaseControl);
-
         // Get views by ID
         title = findViewById(R.id.title);
         logoutButton = findViewById(R.id.logout);
@@ -51,6 +53,16 @@ public class calendarActivity extends AppCompatActivity {
         userId = getIntent().getIntExtra("user_id", -1);
         String username = databaseControl.selectUsername(userId);
         title.setText("Welcome to Money Manager " + username + "!");
+
+        calendarView.setOnDateChangedListener((view, date, selected) -> {
+            // Updates the chosen date from the user
+            selectedYear = date.getYear();
+            selectedMonth = date.getMonth() +1;
+            selectedDay = date.getDay();
+        });
+
+
+
 
         // Set button listeners
         logoutButton.setOnClickListener(v -> {
@@ -78,9 +90,16 @@ public class calendarActivity extends AppCompatActivity {
         });
 
         viewJournalButton.setOnClickListener(v -> {
-            Intent intent = new Intent(calendarActivity.this, ViewJournalActivity.class);
-            intent.putExtra("user_id", userId);
-            startActivity(intent);
+            if (selectedYear != 0 && selectedMonth != 0 && selectedDay != 0) {
+                Intent intent = new Intent(calendarActivity.this, ViewJournalActivity.class);
+                intent.putExtra("user_id", userId);
+                intent.putExtra("year", selectedYear);
+                intent.putExtra("month", selectedMonth);
+                intent.putExtra("day", selectedDay);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Select a date first", Toast.LENGTH_SHORT).show();
+            }
         });
 
         createJournalButton.setOnClickListener(v -> {
