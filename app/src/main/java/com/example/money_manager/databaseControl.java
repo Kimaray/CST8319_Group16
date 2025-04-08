@@ -125,89 +125,126 @@ public class databaseControl extends SQLiteOpenHelper {
     private static final String record2 = "INSERT INTO users (username,password) values ('Jane_Doe', 'password123');";
     private static final String record3 = "INSERT INTO users (username,password) values ('Mary_Poppins', 'password123');";
     private static final String record4 = "INSERT INTO users (username,password) values ('Bob_Bob', 'password123');";
-        public databaseControl(Context context) {
-            super (context, databaseName, null, databaseVersion);
-        }
+    public databaseControl(Context context) {
+        super (context, databaseName, null, databaseVersion);
+    }
 
-        @Override
-        public void onCreate(SQLiteDatabase db){
-            db.execSQL(keys);
-            db.execSQL(createUserTable); //Creates tables if they don't exist
-            db.execSQL(createJournalTable);
-            db.execSQL(createEventTable);
-            db.execSQL(createTransactionTable);
-            db.execSQL(createGoalTable);
-            db.execSQL(record1);
-            db.execSQL(record2);
-            db.execSQL(record3);
-            db.execSQL(record4);
-            Log.d("databaseControl", "Database Created and table" + userTable + " created");
-            Log.d("databaseControl", "Database Created and table" + journalTable + " created");
-            Log.d("databaseControl", "Database Created and table" + eventTable + " created");
-            Log.d("databaseControl", "Database Created and table" + transactionTable + " created");
-            Log.d("databaseControl", "Database Created and table" + goalTable + " created");
-        }
+    @Override
+    public void onCreate(SQLiteDatabase db){
+        db.execSQL(keys);
+        db.execSQL(createUserTable); //Creates tables if they don't exist
+        db.execSQL(createJournalTable);
+        db.execSQL(createEventTable);
+        db.execSQL(createTransactionTable);
+        db.execSQL(createGoalTable);
+        db.execSQL(record1);
+        db.execSQL(record2);
+        db.execSQL(record3);
+        db.execSQL(record4);
+        Log.d("databaseControl", "Database Created and table" + userTable + " created");
+        Log.d("databaseControl", "Database Created and table" + journalTable + " created");
+        Log.d("databaseControl", "Database Created and table" + eventTable + " created");
+        Log.d("databaseControl", "Database Created and table" + transactionTable + " created");
+        Log.d("databaseControl", "Database Created and table" + goalTable + " created");
+    }
 
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
-            db.execSQL("DROP TABLE IF EXISTS " + userTable); //Drops the old one if it exists
-            onCreate(db);
-        }
-        //Getting only the list of usernames that have been inserted this is for the login screen
-       public ArrayList<String>getUsers() {
-                ArrayList<String> usernames = new ArrayList<>();
-                SQLiteDatabase db = this.getReadableDatabase();
-                //Executing the select statement here for usernames
-                Cursor cursor = db.query(userTable, new String[]{columnUsername}, null, null, null, null, null);
-                if (cursor != null) {
-                        while(cursor.moveToNext()){
-                                @SuppressLint("Range") String username = cursor.getString(cursor.getColumnIndex(columnUsername));
-                                usernames.add(username);
-                        }
-                        cursor.close();
-                }
-                System.out.println("Fetched users: " + usernames);
-               return usernames;
-       }
-
-       @SuppressLint("Range")
-       public int authenticateUser(String username, String password){
-            SQLiteDatabase db = this.getWritableDatabase();
-            String selectQuery = "SELECT " + columnUserId + " FROM " + userTable +
-                    " WHERE " + columnUsername + " = ? AND " + columnPassword + " = ?";
-            Cursor cursor = db.rawQuery(selectQuery, new String[]{username, password});
-            int userId = -1;
-            //If this exists it will move to it and set the value
-            if (cursor.moveToFirst()) {
-                userId = cursor.getInt(cursor.getColumnIndex(columnUserId));
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
+        db.execSQL("DROP TABLE IF EXISTS " + userTable); //Drops the old one if it exists
+        onCreate(db);
+    }
+    //Getting only the list of usernames that have been inserted this is for the login screen
+    public ArrayList<String>getUsers() {
+        ArrayList<String> usernames = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        //Executing the select statement here for usernames
+        Cursor cursor = db.query(userTable, new String[]{columnUsername}, null, null, null, null, null);
+        if (cursor != null) {
+            while(cursor.moveToNext()){
+                @SuppressLint("Range") String username = cursor.getString(cursor.getColumnIndex(columnUsername));
+                usernames.add(username);
             }
             cursor.close();
-            return userId;
-       }
-        @SuppressLint("Range")
-        public String selectUsername(int userId) {
-            SQLiteDatabase db = this.getReadableDatabase();
-            String selectQuery = "SELECT " + columnUsername + " FROM " + userTable +
-                    " WHERE " + columnUserId + " = ?";
-            String username = null;
-            Cursor cursor = db.rawQuery(selectQuery, new String[]{String.valueOf(userId)});
-            if (cursor.moveToFirst()) {
-                username = cursor.getString(cursor.getColumnIndex(columnUsername));
-            }
-            cursor.close();
-            return username;
+        }
+        System.out.println("Fetched users: " + usernames);
+        return usernames;
+    }
+
+    @SuppressLint("Range")
+    public int authenticateUser(String username, String password){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selectQuery = "SELECT " + columnUserId + " FROM " + userTable +
+                " WHERE " + columnUsername + " = ? AND " + columnPassword + " = ?";
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{username, password});
+        int userId = -1;
+        //If this exists it will move to it and set the value
+        if (cursor.moveToFirst()) {
+            userId = cursor.getInt(cursor.getColumnIndex(columnUserId));
+        }
+        cursor.close();
+        return userId;
+    }
+    @SuppressLint("Range")
+    public String selectUsername(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT " + columnUsername + " FROM " + userTable +
+                " WHERE " + columnUserId + " = ?";
+        String username = null;
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{String.valueOf(userId)});
+        if (cursor.moveToFirst()) {
+            username = cursor.getString(cursor.getColumnIndex(columnUsername));
+        }
+        cursor.close();
+        return username;
+    }
+
+    public void insertUser(String username, String password) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(columnUsername, username);
+        values.put(columnPassword, password);
+        long result = db.insert(userTable, null, values);
+        if (result == -1) {
+            Log.d("databaseControl", "Failed to insert user from insertUser()");
+        } else {
+            Log.d ("databaseControl", "User inserted successfully");
+        }
+    }
+
+    // creating the journal entry into the database
+    @SuppressLint("Range")
+    public void saveJournalEntry(int userId, int year, int month, int day, String contents) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(columnUserId, userId);
+        values.put(columnJournalYear, year);
+        values.put(columnJournalMonth, month);
+        values.put(columnJournalDay, day);
+        values.put(columnJournalContents, contents);
+        db.insert(journalTable, null, values);
+    }
+
+    // Gets the journal entries for the user and date chosen
+    @SuppressLint("Range")
+    public ArrayList<String> getJournalEntries(int userId, int year, int month, int day) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + columnJournalContents + " FROM " + journalTable +
+                " WHERE " + columnUserId + "=? AND " + columnJournalYear + "=? AND " +
+                columnJournalMonth + "=? AND " + columnJournalDay + "=?";
+        Cursor cursor = db.rawQuery(query, new String[]{
+                String.valueOf(userId), String.valueOf(year), String.valueOf(month), String.valueOf(day)
+        });
+
+    // Creating the list with the entries
+        ArrayList<String> entries = new ArrayList<>();
+        if (cursor.moveToFirst()) {
+            do {
+                String content = cursor.getString(cursor.getColumnIndex(columnJournalContents));
+                entries.add(content);
+            } while (cursor.moveToNext());
         }
 
-        public void insertUser(String username, String password) {
-            SQLiteDatabase db = this.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(columnUsername, username);
-            values.put(columnPassword, password);
-            long result = db.insert(userTable, null, values);
-            if (result == -1) {
-                Log.d("databaseControl", "Failed to insert user from insertUser()");
-            } else {
-                Log.d ("databaseControl", "User inserted successfully");
-            }
-        }
+        cursor.close();
+        return entries;
+    }
 }
