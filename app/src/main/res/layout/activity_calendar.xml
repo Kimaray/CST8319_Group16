@@ -8,16 +8,18 @@
     android:layout_height="match_parent"
     tools:context=".calendarActivity">
 
+    <!-- Title -->
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to Money Manager"
         android:layout_marginTop="25dp"
+        android:text="Welcome to Money Manager"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- MaterialCalendarView -->
     <CalendarView
         android:id="@+id/calendar"
         android:layout_width="wrap_content"
@@ -26,7 +28,6 @@
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
     <TextView
         android:id="@+id/calendarText"
         android:layout_width="wrap_content"
@@ -37,57 +38,80 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/createJournal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="216dp"
-        android:layout_marginTop="10dp"
-        android:text="Create Journal Entry"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/calendarText" />
+    <!-- Horizontal row for Show Events and Show Goals -->
 
     <Button
-        android:id="@+id/viewJournal"
-        android:layout_width="wrap_content"
+        android:id="@+id/showEvents"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="224dp"
-        android:layout_marginTop="8dp"
-        android:text="View Journal Entry"
+        android:layout_marginTop="32dp"
+        android:text="Show Events"
+        app:layout_constraintEnd_toStartOf="@id/showGoals"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/createJournal" />
+        app:layout_constraintTop_toBottomOf="@id/calendar" />
+
+    <!-- Vertical chain of action buttons -->
+
+    <Button
+        android:id="@+id/showGoals"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Show Goals"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/showEvents"
+        app:layout_constraintTop_toBottomOf="@id/calendar" />
 
     <Button
         android:id="@+id/createEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="264dp"
-        android:layout_marginTop="8dp"
         android:text="Create Event"
+        app:layout_constraintTop_toBottomOf="@id/showEvents"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/viewJournal" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/viewJournal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Journal Entry"
+        app:layout_constraintTop_toBottomOf="@id/createEvent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/createJournal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Journal Entry"
+        app:layout_constraintTop_toBottomOf="@id/viewJournal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
 
     <Button
         android:id="@+id/createGoal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="268dp"
-        android:layout_marginTop="8dp"
         android:text="Create Goal"
+        app:layout_constraintTop_toBottomOf="@id/createJournal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/createEvent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
 
+    <!-- Logout Button at top-right -->
     <Button
         android:id="@+id/logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
         android:text="Logout"
-        android:textSize="12dp"
+        android:textSize="12sp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/title" />
+        android:layout_margin="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 

@@ -48,7 +48,7 @@ public class journalActivity extends AppCompatActivity {
             if (!content.isEmpty()) {
                 db.saveJournalEntry(userId, year, month, day, content);
                 Toast.makeText(this, "Journal saved!", Toast.LENGTH_SHORT).show();
-                journalInput.setText(""); // Clear input field
+                journalInput.setText("");
             } else {
                 Toast.makeText(this, "Entry cannot be empty.", Toast.LENGTH_SHORT).show();
             }
