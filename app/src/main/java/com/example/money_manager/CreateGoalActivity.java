@@ -10,7 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class CreateGoalActivity extends AppCompatActivity {
+import com.example.money_manager.NotificationHelper;
+
+public class  CreateGoalActivity extends AppCompatActivity {
 
     private databaseControl dbControl;
     private DatePicker datePicker;
@@ -77,6 +79,12 @@ public class CreateGoalActivity extends AppCompatActivity {
 
         boolean inserted = insertGoal(userId, goalType, month, day, year, value, savings, description);
         if (inserted) {
+            NotificationHelper.createNotificationChannel(this);
+            NotificationHelper.sendNotification(
+                    this,
+                    "Goal Created",
+                    "You've successfully created a new goal!"
+            );
             Toast.makeText(this, "Goal created", Toast.LENGTH_SHORT).show();
             finish();
         } else {

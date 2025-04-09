@@ -10,6 +10,7 @@ import android.content.ContentValues;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class databaseControl extends SQLiteOpenHelper {
     private static final String databaseName = "database.db";
@@ -237,4 +238,28 @@ public class databaseControl extends SQLiteOpenHelper {
         cursor.close();
         return entries;
     }
+
+    public List<Goal> getUserGoals(int userId) {
+        List<Goal> goals = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT " + columnGoalDay + ", " + columnGoalMonth + ", " + columnGoalYear +
+                        " FROM " + goalTable + " WHERE " + columnUserId + " = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            do {
+                int day = cursor.getInt(0);
+                int month = cursor.getInt(1);
+                int year = cursor.getInt(2);
+                goals.add(new Goal(day, month, year));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return goals;
+    }
+
 }

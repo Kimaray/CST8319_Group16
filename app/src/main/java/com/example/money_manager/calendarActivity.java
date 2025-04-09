@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,14 +55,14 @@ public class calendarActivity extends AppCompatActivity {
         String username = databaseControl.selectUsername(userId);
         title.setText("Welcome to Money Manager " + username + "!");
 
+        checkForUpcomingGoals();  // <-- This triggers your due-date notification check
+
         calendarView.setOnDateChangedListener((view, date, selected) -> {
             // Updates the chosen date from the user
             selectedYear = date.getYear();
-            selectedMonth = date.getMonth() +1;
+            selectedMonth = date.getMonth() + 1;
             selectedDay = date.getDay();
         });
-
-
 
 
         // Set button listeners
@@ -120,6 +121,7 @@ public class calendarActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
 
         // Initial load of decorators
         refreshCalendarDecorators();
@@ -186,5 +188,27 @@ public class calendarActivity extends AppCompatActivity {
             map.put(day, new java.util.ArrayList<>());
         }
         map.get(day).add(color);
+    }
+
+    private void checkForUpcomingGoals() {
+        List<Goal> userGoals = databaseControl.getUserGoals(userId);
+        Calendar today = Calendar.getInstance();
+
+        for (Goal goal : userGoals) {
+            Calendar dueDate = Calendar.getInstance();
+            dueDate.set(goal.getYear(), goal.getMonth() - 1, goal.getDay());  // month is 0-indexed
+
+            long diffInMillis = dueDate.getTimeInMillis() - today.getTimeInMillis();
+            long daysUntilDue = diffInMillis / (1000 * 60 * 60 * 24);
+
+            if (daysUntilDue == 1) {
+                NotificationHelper.createNotificationChannel(this);
+                NotificationHelper.sendNotification(
+                        this,
+                        "Goal Due Soon",
+                        "Your goal is due tomorrow! 🎯"
+                );
+            }
+        }
     }
 }

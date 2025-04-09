@@ -9,27 +9,31 @@
     tools:context=".calendarActivity">
 
     <!-- Title -->
+
+    <!-- MaterialCalendarView -->
+
+    <!-- Horizontal row for Show Events and Show Goals -->
+
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="16dp"
         android:text="Welcome to Money Manager"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- MaterialCalendarView -->
     <com.prolificinteractive.materialcalendarview.MaterialCalendarView
         android:id="@+id/calendarView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:mcv_showOtherDates="all"
-        app:layout_constraintTop_toBottomOf="@id/title"
+        android:layout_width="407dp"
+        android:layout_height="280dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:mcv_showOtherDates="all" />
 
-    <!-- Horizontal row for Show Events and Show Goals -->
     <Button
         android:id="@+id/showEvents"
         android:layout_width="0dp"
@@ -51,15 +55,16 @@
         android:layout_marginTop="16dp"/>
 
     <!-- Vertical chain of action buttons -->
+
     <Button
         android:id="@+id/createEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Create Event"
-        app:layout_constraintTop_toBottomOf="@id/showEvents"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/showEvents" />
 
     <Button
         android:id="@+id/viewJournal"
