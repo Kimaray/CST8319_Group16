@@ -32,9 +32,9 @@ public class databaseControl extends SQLiteOpenHelper {
     //Constraining tables and columns for journal entries
     public static final String journalTable = "journal";
     public static final String columnJournalId = "journal_id";
-    public static final String columnJournalMonth = "journal_month";
-    public static final String columnJournalDay = "journal_day";
-    public static final String columnJournalYear = "journal_year";
+    public static final String columnJournalMonth= "journal_month";
+    public static final String columnJournalDay= "journal_day";
+    public static final String columnJournalYear= "journal_year";
     public static final String columnJournalContents = "contents";
 
     //Constraining tables and columns for transactions
@@ -52,7 +52,7 @@ public class databaseControl extends SQLiteOpenHelper {
     public static final String columnGoalType = "goal_type";
     public static final String columnGoalMonth = "goal_month";
     public static final String columnGoalDay = "goal_day";
-    public static final String columnGoalYear = "goal_year";
+    public static final String columnGoalYear= "goal_year";
     public static final String columnValue = "value";
     public static final String columnSavings = "savings";
     public static final String columnGoalDesc = "description";
@@ -90,7 +90,7 @@ public class databaseControl extends SQLiteOpenHelper {
                     "FOREIGN KEY(" + columnTranId + ") REFERENCES " + transactionTable + "(" + columnTranId + "));";
 
     public static final String createTransactionTable =
-            "CREATE TABLE IF NOT EXISTS " + transactionTable + " (" +
+            "CREATE TABLE IF NOT EXISTS " + transactionTable + " ("+
                     columnTranId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     columnAmount + " DECIMAL(10,2) NOT NULL, " +
                     columnReason + " TEXT NOT NULL, " +
@@ -125,13 +125,12 @@ public class databaseControl extends SQLiteOpenHelper {
     private static final String record2 = "INSERT INTO users (username,password) values ('Jane_Doe', 'password123');";
     private static final String record3 = "INSERT INTO users (username,password) values ('Mary_Poppins', 'password123');";
     private static final String record4 = "INSERT INTO users (username,password) values ('Bob_Bob', 'password123');";
-
     public databaseControl(Context context) {
-        super(context, databaseName, null, databaseVersion);
+        super (context, databaseName, null, databaseVersion);
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(SQLiteDatabase db){
         db.execSQL(keys);
         db.execSQL(createUserTable); //Creates tables if they don't exist
         db.execSQL(createJournalTable);
@@ -150,19 +149,18 @@ public class databaseControl extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
         db.execSQL("DROP TABLE IF EXISTS " + userTable); //Drops the old one if it exists
         onCreate(db);
     }
-
     //Getting only the list of usernames that have been inserted this is for the login screen
-    public ArrayList<String> getUsers() {
+    public ArrayList<String>getUsers() {
         ArrayList<String> usernames = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         //Executing the select statement here for usernames
         Cursor cursor = db.query(userTable, new String[]{columnUsername}, null, null, null, null, null);
         if (cursor != null) {
-            while (cursor.moveToNext()) {
+            while(cursor.moveToNext()){
                 @SuppressLint("Range") String username = cursor.getString(cursor.getColumnIndex(columnUsername));
                 usernames.add(username);
             }
@@ -173,7 +171,7 @@ public class databaseControl extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public int authenticateUser(String username, String password) {
+    public int authenticateUser(String username, String password){
         SQLiteDatabase db = this.getWritableDatabase();
         String selectQuery = "SELECT " + columnUserId + " FROM " + userTable +
                 " WHERE " + columnUsername + " = ? AND " + columnPassword + " = ?";
@@ -186,7 +184,6 @@ public class databaseControl extends SQLiteOpenHelper {
         cursor.close();
         return userId;
     }
-
     @SuppressLint("Range")
     public String selectUsername(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -210,8 +207,21 @@ public class databaseControl extends SQLiteOpenHelper {
         if (result == -1) {
             Log.d("databaseControl", "Failed to insert user from insertUser()");
         } else {
-            Log.d("databaseControl", "User inserted successfully");
+            Log.d ("databaseControl", "User inserted successfully");
         }
+    }
+
+    // creating the journal entry into the database
+    @SuppressLint("Range")
+    public void saveJournalEntry(int userId, int year, int month, int day, String contents) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(columnUserId, userId);
+        values.put(columnJournalYear, year);
+        values.put(columnJournalMonth, month);
+        values.put(columnJournalDay, day);
+        values.put(columnJournalContents, contents);
+        db.insert(journalTable, null, values);
     }
 
     // Gets the journal entries for the user and date chosen
@@ -225,7 +235,7 @@ public class databaseControl extends SQLiteOpenHelper {
                 String.valueOf(userId), String.valueOf(year), String.valueOf(month), String.valueOf(day)
         });
 
-        // Creating the list with the entries
+    // Creating the list with the entries
         ArrayList<String> entries = new ArrayList<>();
         if (cursor.moveToFirst()) {
             do {
