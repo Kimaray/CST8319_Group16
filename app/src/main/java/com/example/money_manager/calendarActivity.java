@@ -1,97 +1,81 @@
 package com.example.money_manager;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-import com.prolificinteractive.materialcalendarview.CalendarDay;
-import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class calendarActivity extends AppCompatActivity {
 
     TextView title;
-    Button logoutButton, showEventsButton, showGoalsButton, createEventButton, viewJournalButton, createJournalButton, createGoalButton;
+    Button logoutButton;
+    Button createJournalButton;
     int userId;
+    int selectedYear = 0, selectedMonth = 0, selectedDay = 0;
     databaseControl databaseControl;
-    MaterialCalendarView calendarView;
-    CalendarDataFetcher dataFetcher;
-    int selectedYear = 0;
-    int selectedMonth = 0;
-    int selectedDay = 0;
+    CalendarView calendar;
+    TextView calendarDateText;
+    Button viewJournalButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_calendar);
-        // Initialize database and data fetcher
         databaseControl = new databaseControl(this);
-        dataFetcher = new CalendarDataFetcher(databaseControl);
-        // Get views by ID
         title = findViewById(R.id.title);
+        calendar = findViewById(R.id.calendar);
         logoutButton = findViewById(R.id.logout);
-        showEventsButton = findViewById(R.id.showEvents);
-        showGoalsButton = findViewById(R.id.showGoals);
-        createEventButton = findViewById(R.id.createEvent);
-        viewJournalButton = findViewById(R.id.viewJournal);
+        calendarDateText = findViewById(R.id.calendarText);
         createJournalButton = findViewById(R.id.createJournal);
-        createGoalButton = findViewById(R.id.createGoal);
-        calendarView = findViewById(R.id.calendarView);
-
-        // Retrieve user ID and update title
-        userId = getIntent().getIntExtra("user_id", -1);
+        viewJournalButton = findViewById(R.id.viewJournal);
+        userId = getIntent().getIntExtra("user_id",-1);
         String username = databaseControl.selectUsername(userId);
-        title.setText("Welcome to Money Manager " + username + "!");
+        title.setText("Welcome to Money Manager " + username +"!");
 
-        calendarView.setOnDateChangedListener((view, date, selected) -> {
-            // Updates the chosen date from the user
-            selectedYear = date.getYear();
-            selectedMonth = date.getMonth() +1;
-            selectedDay = date.getDay();
-        });
-
-
-
-
-        // Set button listeners
-        logoutButton.setOnClickListener(v -> {
+        logoutButton.setOnClickListener(v -> { //This is the listener for the logout button
             Intent intent = new Intent(calendarActivity.this, MainActivity.class);
             startActivity(intent);
-            finish();
+            finish();  // Finishes off anything in this activity before proceeding back to login screen
         });
 
-        showEventsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(calendarActivity.this, ViewEventsActivity.class);
-            intent.putExtra("user_id", userId);
-            startActivity(intent);
+        calendar.setOnDateChangeListener((view, year, month, day) -> {
+            int processedMonth = properMonth(month);
+            // Updates the chosen date from the user
+            selectedYear = year;
+            selectedMonth = month + 1;
+            selectedDay = day;
+
+            calendarDateText.setText("Year: " + year + ", Month: " + processedMonth +", Day: " + day );
         });
 
-        showGoalsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(calendarActivity.this, ViewGoalsActivity.class);
-            intent.putExtra("user_id", userId);
-            startActivity(intent);
+        // checks for valid date and launches the journal activity
+        createJournalButton.setOnClickListener(v -> {
+            if (selectedYear != 0 && selectedMonth != 0 && selectedDay != 0) {
+                Intent intent = new Intent(calendarActivity.this, journalActivity.class);
+                intent.putExtra("user_id", userId);
+                intent.putExtra("year", selectedYear);
+                intent.putExtra("month", selectedMonth);
+                intent.putExtra("day", selectedDay);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Select a date", Toast.LENGTH_SHORT).show();
+            }
         });
 
-        createEventButton.setOnClickListener(v -> {
-            Intent intent = new Intent(calendarActivity.this, CreateEventActivity.class);
-            intent.putExtra("user_id", userId);
-            startActivity(intent);
-        });
-
+        // checks for valid date and launches the view journal activity
         viewJournalButton.setOnClickListener(v -> {
             if (selectedYear != 0 && selectedMonth != 0 && selectedDay != 0) {
-                Intent intent = new Intent(calendarActivity.this, ViewJournalActivity.class);
+                Intent intent = new Intent(calendarActivity.this, viewJournalActivity.class);
                 intent.putExtra("user_id", userId);
                 intent.putExtra("year", selectedYear);
                 intent.putExtra("month", selectedMonth);
@@ -102,89 +86,17 @@ public class calendarActivity extends AppCompatActivity {
             }
         });
 
-        createJournalButton.setOnClickListener(v -> {
-            Intent intent = new Intent(calendarActivity.this, CreateJournalActivity.class);
-            intent.putExtra("user_id", userId);
-            startActivity(intent);
-        });
-
-        createGoalButton.setOnClickListener(v -> {
-            Intent intent = new Intent(calendarActivity.this, CreateGoalActivity.class);
-            intent.putExtra("user_id", userId);
-            startActivity(intent);
-        });
-
-        // Adjust window insets for proper padding
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        // Initial load of decorators
-        refreshCalendarDecorators();
+    }
+    private int properMonth(int month){
+        //Have to add 1 since month starts at 0
+        month = month+1;
+        return month;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Refresh decorators when returning to the calendar
-        refreshCalendarDecorators();
-    }
-
-    /**
-     * Refreshes the calendar decorators by building a map of CalendarDay to dot colors
-     * and then adding a DayDotDecorator for each day.
-     */
-    private void refreshCalendarDecorators() {
-        // Remove existing decorators
-        calendarView.removeDecorators();
-
-        // Build a mapping of CalendarDay to a list of dot colors
-        Map<CalendarDay, java.util.List<Integer>> dayColorMap = new HashMap<>();
-
-        // Fetch dates from the database
-        List<CalendarDay> journalDays = dataFetcher.getJournalDays(userId);
-        List<CalendarDay> eventDays = dataFetcher.getEventDays(userId);
-        List<CalendarDay> goalDays = dataFetcher.getGoalDays(userId);
-
-        // For journal entries, add blue dots
-        for (CalendarDay day : journalDays) {
-            addColorForDay(dayColorMap, day, Color.BLUE);
-        }
-        // For events, add green dots
-        for (CalendarDay day : eventDays) {
-            addColorForDay(dayColorMap, day, Color.GREEN);
-        }
-        // For goals, add red dots
-        for (CalendarDay day : goalDays) {
-            addColorForDay(dayColorMap, day, Color.RED);
-        }
-
-        // For each day with dots, create a decorator and add it to the calendar
-        for (Map.Entry<CalendarDay, java.util.List<Integer>> entry : dayColorMap.entrySet()) {
-            CalendarDay day = entry.getKey();
-            java.util.List<Integer> colorList = entry.getValue();
-            // Convert List<Integer> to int[]
-            int[] colors = new int[colorList.size()];
-            for (int i = 0; i < colorList.size(); i++) {
-                colors[i] = colorList.get(i);
-            }
-            // Create a decorator for this day
-            DayDotDecorator decorator = new DayDotDecorator(day, colors, 5f);
-            calendarView.addDecorator(decorator);
-        }
-
-        calendarView.invalidateDecorators();
-    }
-
-    /**
-     * Helper method to add a color for a given day into the map.
-     */
-    private void addColorForDay(Map<CalendarDay, java.util.List<Integer>> map, CalendarDay day, int color) {
-        if (!map.containsKey(day)) {
-            map.put(day, new java.util.ArrayList<>());
-        }
-        map.get(day).add(color);
-    }
 }
+
