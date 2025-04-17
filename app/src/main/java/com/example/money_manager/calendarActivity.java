@@ -93,7 +93,7 @@ public class calendarActivity extends AppCompatActivity {
 
         viewJournalButton.setOnClickListener(v -> {
             if (selectedYear != 0 && selectedMonth != 0 && selectedDay != 0) {
-                Intent intent = new Intent(calendarActivity.this, ViewJournalActivity.class);
+                Intent intent = new Intent(calendarActivity.this, viewJournalActivity.class);
                 intent.putExtra("user_id", userId);
                 intent.putExtra("year", selectedYear);
                 intent.putExtra("month", selectedMonth);
