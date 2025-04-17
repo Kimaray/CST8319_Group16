@@ -22,7 +22,7 @@ import java.util.Map;
 public class calendarActivity extends AppCompatActivity {
 
     TextView title;
-    Button logoutButton, showEventsButton, showGoalsButton, createEventButton, viewJournalButton, createJournalButton, createGoalButton;
+    Button logoutButton, showEventsButton, showGoalsButton, createEventButton, viewJournalButton, createJournalButton, createGoalButton, createTransactionButton;
     int userId;
     databaseControl databaseControl;
     MaterialCalendarView calendarView;
@@ -48,6 +48,8 @@ public class calendarActivity extends AppCompatActivity {
         createJournalButton = findViewById(R.id.createJournal);
         createGoalButton = findViewById(R.id.createGoal);
         calendarView = findViewById(R.id.calendarView);
+        createTransactionButton = findViewById(R.id.createTransactionButton);
+
 
         // Retrieve user ID and update title
         userId = getIntent().getIntExtra("user_id", -1);
@@ -110,6 +112,11 @@ public class calendarActivity extends AppCompatActivity {
 
         createGoalButton.setOnClickListener(v -> {
             Intent intent = new Intent(calendarActivity.this, CreateGoalActivity.class);
+            intent.putExtra("user_id", userId);
+            startActivity(intent);
+        });
+        createTransactionButton.setOnClickListener(v -> {
+            Intent intent = new Intent(calendarActivity.this, CreateTransactionActivity.class);
             intent.putExtra("user_id", userId);
             startActivity(intent);
         });

@@ -18,7 +18,7 @@ public class CreateTransactionActivity extends AppCompatActivity {
     private DatePicker datePicker;
     private Button saveButton;
     private int userId;
-    private int eventId; // This should be passed or determined from your app logic
+    private int eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +37,7 @@ public class CreateTransactionActivity extends AppCompatActivity {
         eventId = getIntent().getIntExtra("event_id", 0);
 
         saveButton.setOnClickListener(v -> saveTransaction());
+
     }
 
     private void saveTransaction() {
