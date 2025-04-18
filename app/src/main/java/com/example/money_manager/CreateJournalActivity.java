@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,6 +17,7 @@ public class CreateJournalActivity extends AppCompatActivity {
     private EditText journalContentsEditText;
     private DatePicker datePicker;
     private Button saveButton;
+    private Button backToCalendarButton;
     private int userId;  // Passed from the previous activity
 
     @Override
@@ -25,6 +27,7 @@ public class CreateJournalActivity extends AppCompatActivity {
 
         dbControl = new databaseControl(this);
         journalContentsEditText = findViewById(R.id.journalContentsEditText);
+        backToCalendarButton = findViewById(R.id.backToCalendarButton);
         datePicker = findViewById(R.id.datePicker);
         saveButton = findViewById(R.id.saveButton);
 
@@ -32,6 +35,14 @@ public class CreateJournalActivity extends AppCompatActivity {
         userId = getIntent().getIntExtra("user_id", -1);
 
         saveButton.setOnClickListener(v -> saveJournalEntry());
+
+        backToCalendarButton.setOnClickListener(v -> {
+            Intent backIntent = new Intent(CreateJournalActivity.this, calendarActivity.class);
+            backIntent.putExtra("user_id", userId);
+            startActivity(backIntent);
+            finish();
+        });
+
     }
 
     private void saveJournalEntry() {

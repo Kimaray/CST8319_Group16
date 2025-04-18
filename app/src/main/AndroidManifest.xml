@@ -16,6 +16,12 @@
             android:name=".createActivity"
             android:exported="false" />
         <activity
+            android:name=".journalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".viewJournalActivity"
+            android:exported="false" />
+        <activity
             android:name=".calendarActivity"
             android:exported="false"
             android:theme="@style/Theme.Money_Manager" />

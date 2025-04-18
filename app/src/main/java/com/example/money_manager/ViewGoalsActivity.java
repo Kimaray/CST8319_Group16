@@ -1,10 +1,12 @@
 package com.example.money_manager;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,6 +19,7 @@ public class ViewGoalsActivity extends AppCompatActivity {
     private databaseControl dbControl;
     private int userId;
     private ListView goalsListView;
+    private Button backToCalendarButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +28,7 @@ public class ViewGoalsActivity extends AppCompatActivity {
 
         dbControl = new databaseControl(this);
         goalsListView = findViewById(R.id.goalsListView);
+        backToCalendarButton = findViewById(R.id.backToCalendarButton);
 
         // Get the user id passed from the previous activity
         userId = getIntent().getIntExtra("user_id", -1);
@@ -39,6 +43,13 @@ public class ViewGoalsActivity extends AppCompatActivity {
         // Use a simple ArrayAdapter to display the goals
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, goals);
         goalsListView.setAdapter(adapter);
+
+        backToCalendarButton.setOnClickListener(v -> {
+            Intent backIntent = new Intent(ViewGoalsActivity.this, calendarActivity.class);
+            backIntent.putExtra("user_id", userId);
+            startActivity(backIntent);
+            finish();
+        });
     }
 
     private ArrayList<String> getGoalsForUser(int userId) {
@@ -75,5 +86,6 @@ public class ViewGoalsActivity extends AppCompatActivity {
             cursor.close();
         }
         return goals;
+
     }
 }

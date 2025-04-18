@@ -5,8 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +19,7 @@ public class ViewEventsActivity extends AppCompatActivity {
     private databaseControl dbControl;
     private int userId;
     private ListView eventsListView;
+    private Button backToCalendarButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +28,7 @@ public class ViewEventsActivity extends AppCompatActivity {
 
         dbControl = new databaseControl(this);
         eventsListView = findViewById(R.id.eventsListView);
+        backToCalendarButton = findViewById(R.id.backToCalendarButton);
 
         // Get the user id passed from the previous activity
         userId = getIntent().getIntExtra("user_id", -1);
@@ -39,6 +43,14 @@ public class ViewEventsActivity extends AppCompatActivity {
         // Use a simple ArrayAdapter to display the events
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, events);
         eventsListView.setAdapter(adapter);
+
+        backToCalendarButton.setOnClickListener(v -> {
+            Intent backIntent = new Intent(ViewEventsActivity.this, calendarActivity.class);
+            backIntent.putExtra("user_id", userId);
+            startActivity(backIntent);
+            finish();
+        });
+
     }
 
     private ArrayList<String> getEventsForUser(int userId) {
