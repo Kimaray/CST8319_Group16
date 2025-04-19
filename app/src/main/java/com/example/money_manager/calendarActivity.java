@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.graphics.Insets;
@@ -15,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +30,8 @@ public class calendarActivity extends AppCompatActivity {
     int selectedYear = 0;
     int selectedMonth = 0;
     int selectedDay = 0;
+    TextView currentDateTextView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,16 @@ public class calendarActivity extends AppCompatActivity {
         createGoalButton = findViewById(R.id.createGoal);
         calendarView = findViewById(R.id.calendarView);
         createTransactionButton = findViewById(R.id.createTransactionButton);
+        currentDateTextView = findViewById(R.id.currentDateTextView);
+
+        //These are for getting current date
+        Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH) +1 ;//Month is 0 indexed
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        String currentDate = "Date is: " + String.format("%02d", currentMonth) +"/" + String.format("%02d",currentDay) + "/" + currentYear;
+        currentDateTextView.setText(currentDate);
 
 
         // Retrieve user ID and update title
