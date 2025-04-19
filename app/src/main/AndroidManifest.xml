@@ -16,7 +16,13 @@
             android:name=".createActivity"
             android:exported="false" />
         <activity
-            android:name=".CalendarActivity"
+            android:name=".journalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".viewJournalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".calendarActivity"
             android:exported="false"
             android:theme="@style/Theme.Money_Manager" />
         <activity
@@ -28,6 +34,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CreateJournalActivity" />
+        <activity android:name=".CreateTransactionActivity" />
+        <activity android:name=".ViewJournalActivity" />
+        <activity android:name=".CreateEventActivity" />
+        <activity android:name=".CreateGoalActivity" />
+        <activity android:name=".ViewEventsActivity" />
+        <activity android:name=".ViewGoalsActivity" />
+
     </application>
 
 </manifest>

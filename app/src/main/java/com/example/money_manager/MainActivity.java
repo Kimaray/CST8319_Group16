@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             String password = passwordInput.getText().toString();
             int userId = databaseControl.authenticateUser(username, password);
             if (userId != -1) { //-1 is the default value and if it doesn't change it means nothing was returned from the select
-                Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
+                Intent intent = new Intent(MainActivity.this, calendarActivity.class);
                 intent.putExtra("user_id", userId);
                 startActivity(intent);
                 finish(); // Finishes this activity

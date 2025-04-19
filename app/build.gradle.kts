@@ -42,7 +42,12 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation("com.prolificinteractive:material-calendarview:1.4.3")
+    implementation("com.android.support:support-compat:25.1.1")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
 }
