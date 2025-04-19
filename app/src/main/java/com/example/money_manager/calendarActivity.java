@@ -47,15 +47,7 @@ public class calendarActivity extends AppCompatActivity {
     private int selectedDay = 0;
 
 
-    TextView title;
-    Button logoutButton, showEventsButton, showGoalsButton, createEventButton, viewJournalButton, createJournalButton, createGoalButton, createTransactionButton;
-    int userId;
-    databaseControl databaseControl;
-    MaterialCalendarView calendarView;
-    CalendarDataFetcher dataFetcher;
-    int selectedYear = 0;
-    int selectedMonth = 0;
-    int selectedDay = 0;
+
     TextView currentDateTextView;
 
 
