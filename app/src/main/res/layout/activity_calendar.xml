@@ -1,120 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:context=".calendarActivity">
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/background_light"
+    tools:context=".calendarActivity">
 
     <!-- Title -->
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
-        android:layout_width="wrap_content"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
         android:text="Welcome to Money Manager"
+        android:textColor="@color/primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- MaterialCalendarView -->
-    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-        android:id="@+id/calendarView"
+    <!-- Calendar Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/calendarCard"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:mcv_showOtherDates="all"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/surface"
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Horizontal row for Show Events and Show Goals -->
-    <Button
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            app:mcv_showOtherDates="all"/>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Show Events / Goals Row -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/showEvents"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Show Events"
-        app:layout_constraintTop_toBottomOf="@id/calendarView"
+        android:textColor="@color/primary"
+        app:strokeColor="@color/primary"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/calendarCard"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/showGoals"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toStartOf="@+id/showGoals"
+        app:layout_constraintWidth_percent="0.48"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/showGoals"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Show Goals"
-        app:layout_constraintTop_toBottomOf="@id/calendarView"
+        android:textColor="@color/primary"
+        app:strokeColor="@color/primary"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/calendarCard"
         app:layout_constraintStart_toEndOf="@id/showEvents"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintWidth_percent="0.48"/>
 
-    <!-- Vertical chain of action buttons -->
-    <Button
+    <!-- Vertical Action Buttons -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/createEvent"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Create Event"
+        android:backgroundTint="@color/secondary"
+        android:textColor="@color/onSecondary"
+        app:cornerRadius="8dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/showEvents"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
-
-    <Button
+        app:layout_constraintEnd_toEndOf="parent"/>
+<!--
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/viewJournal"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="View Journal Entry"
+        android:text="View Journal"
+        android:backgroundTint="@color/tertiary"
+        android:textColor="@color/onTertiary"
+        app:cornerRadius="8dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/createEvent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/createJournal"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Create Journal Entry"
+        android:text="New Journal Entry"
+        android:backgroundTint="@color/accent"
+        android:textColor="@color/onAccent"
+        app:cornerRadius="8dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/viewJournal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
-
-    <Button
+        app:layout_constraintEnd_toEndOf="parent"/>
+-->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/createGoal"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Create Goal"
-        app:layout_constraintTop_toBottomOf="@id/createJournal"
+        android:backgroundTint="@color/warning"
+        android:textColor="@color/onWarning"
+        app:cornerRadius="8dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/createEvent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Logout Button at top-right -->
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout"
-        android:textSize="12sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
-
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/createTransactionButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Add Transaction"
+        android:backgroundTint="@color/info"
+        android:textColor="@color/onInfo"
+        app:cornerRadius="8dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/createGoal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/viewTransactions"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="View Transactions"
+        app:layout_constraintTop_toBottomOf="@+id/createTransactionButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+    <!-- Logout Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/logout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:textColor="@color/error"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/viewTransactions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

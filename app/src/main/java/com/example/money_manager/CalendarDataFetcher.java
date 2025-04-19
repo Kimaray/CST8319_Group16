@@ -92,4 +92,23 @@ public class CalendarDataFetcher {
         }
         return days;
     }
+
+    public List<CalendarDay> getTransactionDays(int userId) {
+        List<CalendarDay> days = new ArrayList<>();
+        Cursor c = dbControl.getReadableDatabase().rawQuery(
+                "SELECT " + databaseControl.columnTranYear + ", " + databaseControl.columnTranMonth + ", " + databaseControl.columnTranDay +
+                        " FROM " + databaseControl.transactionTable +
+                        " WHERE " + databaseControl.columnUserIdFk + "=?",
+                new String[]{ String.valueOf(userId) }
+        );
+        while (c.moveToNext()) {
+            int y = c.getInt(0);
+            int m = c.getInt(1);
+            int d = c.getInt(2);
+            // CalendarDay expects month 0-based, so subtract 1
+            days.add(CalendarDay.from(y, m - 1, d));
+        }
+        c.close();
+        return days;
+    }
 }

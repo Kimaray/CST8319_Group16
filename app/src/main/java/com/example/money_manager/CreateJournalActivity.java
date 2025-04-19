@@ -1,24 +1,25 @@
 package com.example.money_manager;
 
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.Toast;
-import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class CreateJournalActivity extends AppCompatActivity {
+import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.Calendar;
+
+public class CreateJournalActivity extends AppCompatActivity {
     private databaseControl dbControl;
-    private EditText journalContentsEditText;
-    private DatePicker datePicker;
-    private Button saveButton;
-    private Button backToCalendarButton;
-    private int userId;  // Passed from the previous activity
+    private Button dateButton;
+    private TextInputEditText contentInput;
+    private Button saveButton, backButton;
+    private int userId;
+    private int selYear, selMonth, selDay;
+    private TextInputEditText amountInput, descriptionInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,57 +27,64 @@ public class CreateJournalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_journal);
 
         dbControl = new databaseControl(this);
-        journalContentsEditText = findViewById(R.id.journalContentsEditText);
-        backToCalendarButton = findViewById(R.id.backToCalendarButton);
-        datePicker = findViewById(R.id.datePicker);
+        amountInput = findViewById(R.id.amountInput);
+        descriptionInput = findViewById(R.id.descriptionInput);
+        dateButton = findViewById(R.id.dateButton);
         saveButton = findViewById(R.id.saveButton);
+        backButton = findViewById(R.id.backButton);
 
-        // Get the user ID passed from the login or calendar activity
         userId = getIntent().getIntExtra("user_id", -1);
 
-        saveButton.setOnClickListener(v -> saveJournalEntry());
+        // Initialize date to today
+        Calendar c = Calendar.getInstance();
+        selYear = c.get(Calendar.YEAR);
+        selMonth = c.get(Calendar.MONTH);
+        selDay = c.get(Calendar.DAY_OF_MONTH);
+        updateDateText();
 
-        backToCalendarButton.setOnClickListener(v -> {
-            Intent backIntent = new Intent(CreateJournalActivity.this, calendarActivity.class);
-            backIntent.putExtra("user_id", userId);
-            startActivity(backIntent);
-            finish();
+        dateButton.setOnClickListener(v -> new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    selYear = year;
+                    selMonth = month;
+                    selDay = dayOfMonth;
+                    updateDateText();
+                }, selYear, selMonth, selDay
+        ).show());
+
+        saveButton.setOnClickListener(v -> {
+            String amtStr = amountInput.getText().toString().trim();
+            String desc = descriptionInput.getText().toString().trim();
+            if (amtStr.isEmpty() || desc.isEmpty()) {
+                Toast.makeText(this, "Enter amount and description", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            double amt;
+            try {
+                amt = Double.parseDouble(amtStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Insert using new method
+            long id = dbControl.insertJournalEntry(userId, selYear, selMonth + 1, selDay, amt, desc);
+            if (id > 0) {
+                Toast.makeText(this, "Entry saved (ID=" + id + ")", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "Save failed", Toast.LENGTH_SHORT).show();
+            }
         });
 
+        backButton.setOnClickListener(v -> {
+            Intent back = new Intent(this, calendarActivity.class);
+            back.putExtra("user_id", userId);
+            startActivity(back);
+            finish();
+        });
     }
 
-    private void saveJournalEntry() {
-        String contents = journalContentsEditText.getText().toString().trim();
-        if (contents.isEmpty()) {
-            Toast.makeText(CreateJournalActivity.this, "Please enter journal contents", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        // Get the selected date from the DatePicker
-        int day = datePicker.getDayOfMonth();
-        int month = datePicker.getMonth() + 1; // DatePicker months are 0-indexed
-        int year = datePicker.getYear();
-
-        // Insert the journal entry into the database
-        boolean inserted = insertJournalEntry(userId, month, day, year, contents);
-        if (inserted) {
-            Toast.makeText(CreateJournalActivity.this, "Journal entry saved", Toast.LENGTH_SHORT).show();
-            finish(); // Close the activity after saving
-        } else {
-            Toast.makeText(CreateJournalActivity.this, "Error saving journal entry", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private boolean insertJournalEntry(int userId, int month, int day, int year, String contents) {
-        SQLiteDatabase db = dbControl.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(databaseControl.columnJournalMonth, month);
-        values.put(databaseControl.columnJournalDay, day);
-        values.put(databaseControl.columnJournalYear, year);
-        values.put(databaseControl.columnJournalContents, contents);
-        values.put(databaseControl.columnUserId, userId);
-        // event_id is optional; if not used, it remains null
-
-        long result = db.insert(databaseControl.journalTable, null, values);
-        return result != -1;
+    private void updateDateText() {
+        dateButton.setText(String.format("%04d-%02d-%02d", selYear, selMonth + 1, selDay));
     }
 }

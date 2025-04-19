@@ -1,250 +1,383 @@
 package com.example.money_manager;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-import android.content.ContentValues;
-
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class databaseControl extends SQLiteOpenHelper {
     private static final String databaseName = "database.db";
-    private static final int databaseVersion = 1;
+    private static final int databaseVersion = 2;
 
-    //Constraining tables and columns for users
+    // User table
     public static final String userTable = "users";
     public static final String columnUserId = "user_id";
     public static final String columnUsername = "username";
     public static final String columnPassword = "password";
 
-    //Constraining tables and columns for events
+    // Event table
     public static final String eventTable = "event";
     public static final String columnEventId = "event_id";
     public static final String columnEventMonth = "event_month";
     public static final String columnEventDay = "event_day";
     public static final String columnEventYear = "event_year";
     public static final String columnEventDetail = "detail";
-
-    //Constraining tables and columns for journal entries
-    public static final String journalTable = "journal";
+    public static final String columnUserIdFk = "user_id";
+    public static final String columnTranId = "tran_id";
     public static final String columnJournalId = "journal_id";
-    public static final String columnJournalMonth= "journal_month";
-    public static final String columnJournalDay= "journal_day";
-    public static final String columnJournalYear= "journal_year";
+
+    // Journal table
+    public static final String journalTable = "journal";
+
+    public static final String columnJournalMonth = "journal_month";
+    public static final String columnJournalDay = "journal_day";
+    public static final String columnJournalYear = "journal_year";
+    public static final String columnJournalAmount = "amount";
     public static final String columnJournalContents = "contents";
 
-    //Constraining tables and columns for transactions
+    // Transaction table
     public static final String transactionTable = "transactions";
-    public static final String columnTranId = "tran_id";
+    public static final String columnTranIdPk = "tran_id";
     public static final String columnAmount = "amount";
     public static final String columnReason = "reason";
     public static final String columnTranMonth = "tran_month";
     public static final String columnTranDay = "tran_day";
     public static final String columnTranYear = "tran_year";
 
-    //Constraining tables and columns for goals
+    // Goal table
     public static final String goalTable = "goal";
     public static final String columnGoalId = "goal_id";
     public static final String columnGoalType = "goal_type";
     public static final String columnGoalMonth = "goal_month";
     public static final String columnGoalDay = "goal_day";
-    public static final String columnGoalYear= "goal_year";
+    public static final String columnGoalYear = "goal_year";
     public static final String columnValue = "value";
     public static final String columnSavings = "savings";
     public static final String columnGoalDesc = "description";
 
+    // Enable foreign keys
+    private static final String keys = "PRAGMA foreign_keys = ON;";
+    // Create statements
     private static final String createUserTable =
             "CREATE TABLE IF NOT EXISTS " + userTable + " (" +
                     columnUserId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     columnUsername + " TEXT NOT NULL, " +
                     columnPassword + " TEXT NOT NULL);";
 
-    public static final String createJournalTable =
+    private static final String createJournalTable =
             "CREATE TABLE IF NOT EXISTS " + journalTable + " (" +
                     columnJournalId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    columnJournalYear + " INT NOT NULL, " +
                     columnJournalMonth + " INT NOT NULL, " +
                     columnJournalDay + " INT NOT NULL, " +
-                    columnJournalYear + " INT NOT NULL, " +
+                    columnJournalAmount + " DECIMAL(10,2) NOT NULL, " +
                     columnJournalContents + " TEXT NOT NULL, " +
-                    columnUserId + " INTEGER NOT NULL, " +
-                    columnEventId + " INTEGER, " +
-                    "FOREIGN KEY(" + columnUserId + ") REFERENCES " + userTable + "(" + columnUserId + "), " +
-                    "FOREIGN KEY(" + columnEventId + ") REFERENCES " + eventTable + "(" + columnEventId + "));";
+                    columnUserIdFk + " INTEGER NOT NULL, " +
+                    "FOREIGN KEY(" + columnUserIdFk + ") REFERENCES " + userTable + "(" + columnUserId + "));";
 
-    public static final String createEventTable =
+    private static final String createEventTable =
             "CREATE TABLE IF NOT EXISTS " + eventTable + " (" +
                     columnEventId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    columnEventYear + " INT NOT NULL, " +
                     columnEventMonth + " INT NOT NULL, " +
                     columnEventDay + " INT NOT NULL, " +
-                    columnEventYear + " INT NOT NULL, " +
                     columnEventDetail + " TEXT NOT NULL, " +
-                    columnUserId + " INTEGER NOT NULL, " +
+                    columnUserIdFk + " INTEGER NOT NULL, " +
                     columnTranId + " INTEGER NOT NULL, " +
                     columnJournalId + " INTEGER, " +
-                    "FOREIGN KEY(" + columnUserId + ") REFERENCES " + userTable + "(" + columnUserId + "), " +
-                    "FOREIGN KEY(" + columnJournalId + ") REFERENCES " + journalTable + "(" + columnJournalId + "), " +
-                    "FOREIGN KEY(" + columnTranId + ") REFERENCES " + transactionTable + "(" + columnTranId + "));";
+                    "FOREIGN KEY(" + columnUserIdFk + ") REFERENCES " + userTable + "(" + columnUserId + "), " +
+                    "FOREIGN KEY(" + columnJournalId + ") REFERENCES " + journalTable + "(" + columnJournalId + "));";
 
-    public static final String createTransactionTable =
-            "CREATE TABLE IF NOT EXISTS " + transactionTable + " ("+
-                    columnTranId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    private static final String createTransactionTable =
+            "CREATE TABLE IF NOT EXISTS " + transactionTable + " (" +
+                    columnTranIdPk + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     columnAmount + " DECIMAL(10,2) NOT NULL, " +
                     columnReason + " TEXT NOT NULL, " +
                     columnTranMonth + " INT NOT NULL, " +
                     columnTranDay + " INT NOT NULL, " +
                     columnTranYear + " INT NOT NULL, " +
-                    columnUserId + " INTEGER NOT NULL, " +
-                    columnEventId + " INTEGER NOT NULL, " +
-                    "FOREIGN KEY(" + columnUserId + ") REFERENCES " + userTable + "(" + columnUserId + "), " +
-                    "FOREIGN KEY(" + columnEventId + ") REFERENCES " + eventTable + "(" + columnEventId + "));";
+                    columnUserIdFk + " INTEGER NOT NULL, " +
+                    "FOREIGN KEY(" + columnUserIdFk + ") REFERENCES " + userTable + "(" + columnUserId + "));";
 
-    public static final String createGoalTable =
+    private static final String createGoalTable =
             "CREATE TABLE IF NOT EXISTS " + goalTable + " (" +
                     columnGoalId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     columnGoalType + " INTEGER NOT NULL, " +
+                    columnGoalYear + " INT NOT NULL, " +
                     columnGoalMonth + " INT NOT NULL, " +
                     columnGoalDay + " INT NOT NULL, " +
-                    columnGoalYear + " INT NOT NULL, " +
                     columnValue + " DECIMAL(10,2) NOT NULL, " +
                     columnSavings + " DECIMAL(10,2) NOT NULL, " +
                     columnGoalDesc + " TEXT NOT NULL, " +
-                    columnJournalId + " INTEGER, " +
-                    columnTranId + " INTEGER, " +
-                    columnUserId + " INTEGER NOT NULL, " +
-                    "FOREIGN KEY(" + columnUserId + ") REFERENCES " + userTable + "(" + columnUserId + "), " +
-                    "FOREIGN KEY(" + columnJournalId + ") REFERENCES " + journalTable + "(" + columnJournalId + "), " +
-                    "FOREIGN KEY(" + columnTranId + ") REFERENCES " + transactionTable + "(" + columnTranId + "));";
+                    columnUserIdFk + " INTEGER NOT NULL, " +
+                    "FOREIGN KEY(" + columnUserIdFk + ") REFERENCES " + userTable + "(" + columnUserId + "));";
 
-    // This needs to be enabled to allow foreign key refrences to work
-    private static final String keys = "PRAGMA foreign_keys = ON;";
-    private static final String record1 = "INSERT INTO users (username,password) values ('John_Smith', 'password123');";
-    private static final String record2 = "INSERT INTO users (username,password) values ('Jane_Doe', 'password123');";
-    private static final String record3 = "INSERT INTO users (username,password) values ('Mary_Poppins', 'password123');";
-    private static final String record4 = "INSERT INTO users (username,password) values ('Bob_Bob', 'password123');";
     public databaseControl(Context context) {
-        super (context, databaseName, null, databaseVersion);
+        super(context, databaseName, null, databaseVersion);
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db){
+    public void onCreate(SQLiteDatabase db) {
         db.execSQL(keys);
-        db.execSQL(createUserTable); //Creates tables if they don't exist
+        db.execSQL(createUserTable);
         db.execSQL(createJournalTable);
         db.execSQL(createEventTable);
         db.execSQL(createTransactionTable);
         db.execSQL(createGoalTable);
-        db.execSQL(record1);
-        db.execSQL(record2);
-        db.execSQL(record3);
-        db.execSQL(record4);
-        Log.d("databaseControl", "Database Created and table" + userTable + " created");
-        Log.d("databaseControl", "Database Created and table" + journalTable + " created");
-        Log.d("databaseControl", "Database Created and table" + eventTable + " created");
-        Log.d("databaseControl", "Database Created and table" + transactionTable + " created");
-        Log.d("databaseControl", "Database Created and table" + goalTable + " created");
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
-        db.execSQL("DROP TABLE IF EXISTS " + userTable); //Drops the old one if it exists
+    public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
+        if (oldV < 2) {
+            // migrate journal to include amount
+            db.execSQL("DROP TABLE IF EXISTS " + journalTable);
+        }
+        db.execSQL("DROP TABLE IF EXISTS " + userTable);
+        db.execSQL("DROP TABLE IF EXISTS " + eventTable);
+        db.execSQL("DROP TABLE IF EXISTS " + transactionTable);
+        db.execSQL("DROP TABLE IF EXISTS " + goalTable);
         onCreate(db);
     }
-    //Getting only the list of usernames that have been inserted this is for the login screen
-    public ArrayList<String>getUsers() {
-        ArrayList<String> usernames = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        //Executing the select statement here for usernames
-        Cursor cursor = db.query(userTable, new String[]{columnUsername}, null, null, null, null, null);
-        if (cursor != null) {
-            while(cursor.moveToNext()){
-                @SuppressLint("Range") String username = cursor.getString(cursor.getColumnIndex(columnUsername));
-                usernames.add(username);
-            }
-            cursor.close();
-        }
-        System.out.println("Fetched users: " + usernames);
-        return usernames;
-    }
 
-    @SuppressLint("Range")
-    public int authenticateUser(String username, String password){
-        SQLiteDatabase db = this.getWritableDatabase();
-        String selectQuery = "SELECT " + columnUserId + " FROM " + userTable +
-                " WHERE " + columnUsername + " = ? AND " + columnPassword + " = ?";
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{username, password});
-        int userId = -1;
-        //If this exists it will move to it and set the value
-        if (cursor.moveToFirst()) {
-            userId = cursor.getInt(cursor.getColumnIndex(columnUserId));
-        }
-        cursor.close();
-        return userId;
-    }
-    @SuppressLint("Range")
-    public String selectUsername(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT " + columnUsername + " FROM " + userTable +
-                " WHERE " + columnUserId + " = ?";
-        String username = null;
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{String.valueOf(userId)});
-        if (cursor.moveToFirst()) {
-            username = cursor.getString(cursor.getColumnIndex(columnUsername));
-        }
-        cursor.close();
-        return username;
-    }
-
+    /**
+     * Insert a new user
+     */
     public void insertUser(String username, String password) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(columnUsername, username);
-        values.put(columnPassword, password);
-        long result = db.insert(userTable, null, values);
-        if (result == -1) {
-            Log.d("databaseControl", "Failed to insert user from insertUser()");
-        } else {
-            Log.d ("databaseControl", "User inserted successfully");
-        }
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(columnUsername, username);
+        v.put(columnPassword, password);
+        db.insert(userTable, null, v);
     }
 
-    // creating the journal entry into the database
+    /**
+     * Authenticate user
+     */
     @SuppressLint("Range")
-    public void saveJournalEntry(int userId, int year, int month, int day, String contents) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(columnUserId, userId);
-        values.put(columnJournalYear, year);
-        values.put(columnJournalMonth, month);
-        values.put(columnJournalDay, day);
-        values.put(columnJournalContents, contents);
-        db.insert(journalTable, null, values);
+    public int authenticateUser(String uname, String pwd) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT " + columnUserId + " FROM " + userTable +
+                        " WHERE " + columnUsername + "=? AND " + columnPassword + "=?",
+                new String[]{uname, pwd});
+        int id = -1;
+        if (c.moveToFirst()) id = c.getInt(c.getColumnIndex(columnUserId));
+        c.close();
+        return id;
     }
 
-    // Gets the journal entries for the user and date chosen
+    /**
+     * Select username by ID
+     */
     @SuppressLint("Range")
-    public ArrayList<String> getJournalEntries(int userId, int year, int month, int day) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + columnJournalContents + " FROM " + journalTable +
-                " WHERE " + columnUserId + "=? AND " + columnJournalYear + "=? AND " +
-                columnJournalMonth + "=? AND " + columnJournalDay + "=?";
-        Cursor cursor = db.rawQuery(query, new String[]{
-                String.valueOf(userId), String.valueOf(year), String.valueOf(month), String.valueOf(day)
-        });
+    public String selectUsername(int uid) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT " + columnUsername + " FROM " + userTable +
+                        " WHERE " + columnUserId + "=?",
+                new String[]{String.valueOf(uid)});
+        String name = null;
+        if (c.moveToFirst()) name = c.getString(c.getColumnIndex(columnUsername));
+        c.close();
+        return name;
+    }
 
-    // Creating the list with the entries
-        ArrayList<String> entries = new ArrayList<>();
-        if (cursor.moveToFirst()) {
-            do {
-                String content = cursor.getString(cursor.getColumnIndex(columnJournalContents));
-                entries.add(content);
-            } while (cursor.moveToNext());
+    /**
+     * Get all usernames
+     */
+    @SuppressLint("Range")
+    public ArrayList<String> getUsers() {
+        ArrayList<String> list = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(userTable, new String[]{columnUsername}, null, null, null, null, null);
+        if (c != null) {
+            while (c.moveToNext()) {
+                list.add(c.getString(c.getColumnIndex(columnUsername)));
+            }
+            c.close();
         }
+        return list;
+    }
 
-        cursor.close();
+    /**
+     * Insert journal entry and return row ID
+     */
+    public long insertJournalEntry(int uid, int year, int month, int day, double amount, String contents) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(columnJournalYear, year);
+        v.put(columnJournalMonth, month);
+        v.put(columnJournalDay, day);
+        v.put(columnJournalAmount, amount);
+        v.put(columnJournalContents, contents);
+        v.put(columnUserIdFk, uid);
+        return db.insert(journalTable, null, v);
+    }
+
+    /**
+     * Get journal entries for specific date
+     */
+    @SuppressLint("Range")
+    public List<String> getJournalEntries(int uid, int year, int month, int day) {
+        List<String> entries = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT " + columnJournalAmount + "," + columnJournalContents + " FROM " + journalTable +
+                        " WHERE " + columnUserIdFk + "=? AND " + columnJournalYear + "=? AND " + columnJournalMonth + "=? AND " + columnJournalDay + "=?",
+                new String[]{String.valueOf(uid), String.valueOf(year), String.valueOf(month), String.valueOf(day)});
+        while (c.moveToNext()) {
+            double amt = c.getDouble(0);
+            String txt = c.getString(1);
+            entries.add(String.format("$%.2f — %s", amt, txt));
+        }
+        c.close();
         return entries;
+    }
+
+    /**
+     * Calculate running total of journal amounts
+     */
+    public double getJournalRunningTotal(int uid) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT SUM(" + columnJournalAmount + ") FROM " + journalTable +
+                        " WHERE " + columnUserIdFk + "=?",
+                new String[]{String.valueOf(uid)});
+        double total = 0;
+        if (c.moveToFirst()) total = c.getDouble(0);
+        c.close();
+        return total;
+    }
+
+    /**
+     * Fetch events on a date
+     */
+    public List<String> getEventsOnDate(int uid, int year, int month, int day) {
+        List<String> events = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT " + columnEventDetail + " FROM " + eventTable +
+                        " WHERE " + columnUserIdFk + "=? AND " + columnEventYear + "=? AND " + columnEventMonth + "=? AND " + columnEventDay + "=?",
+                new String[]{String.valueOf(uid), String.valueOf(year), String.valueOf(month), String.valueOf(day)});
+        while (c.moveToNext()) events.add(c.getString(c.getColumnIndex(columnEventDetail)));
+        c.close();
+        return events;
+    }
+
+    /**
+     * Fetch goals on a date
+     */
+    public List<String> getGoalsOnDate(int uid, int year, int month, int day) {
+        List<String> goals = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT " + columnGoalDesc + " FROM " + goalTable +
+                        " WHERE " + columnUserIdFk + "=? AND " + columnGoalYear + "=? AND " + columnGoalMonth + "=? AND " + columnGoalDay + "=?",
+                new String[]{String.valueOf(uid), String.valueOf(year), String.valueOf(month), String.valueOf(day)});
+        while (c.moveToNext()) goals.add(c.getString(c.getColumnIndex(columnGoalDesc)));
+        c.close();
+        return goals;
+    }
+
+    /**
+     * Insert event and return its ID
+     */
+    public long insertEvent(int uid, int month, int day, int year, String detail) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(columnEventMonth, month);
+        v.put(columnEventDay, day);
+        v.put(columnEventYear, year);
+        v.put(columnEventDetail, detail);
+        v.put(columnUserIdFk, uid);
+        v.put(columnTranId, 0);
+        return db.insert(eventTable, null, v);
+    }
+
+    /**
+     * Insert goal and return its ID
+     */
+    public long insertGoal(int uid, int goalType, int month, int day, int year, double value, double savings, String description) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(columnGoalType, goalType);
+        v.put(columnGoalMonth, month);
+        v.put(columnGoalDay, day);
+        v.put(columnGoalYear, year);
+        v.put(columnValue, value);
+        v.put(columnSavings, savings);
+        v.put(columnGoalDesc, description);
+        v.put(columnUserIdFk, uid);
+        return db.insert(goalTable, null, v);
+    }
+    public long insertTransaction(int uid, int year, int month, int day, double amount, String reason) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues v = new ContentValues();
+        v.put(columnTranYear, year);
+        v.put(columnTranMonth, month);
+        v.put(columnTranDay, day);
+        v.put(columnAmount, amount);
+        v.put(columnReason, reason);
+        v.put(columnUserIdFk, uid);
+        return db.insert(transactionTable, null, v);
+    }
+    @SuppressLint("Range")
+    public double getTransactionRunningTotal(int uid) {
+        SQLiteDatabase db = getReadableDatabase();
+        // Sum up the “amount” column (expenses stored as negative, income as positive)
+        Cursor c = db.rawQuery(
+                "SELECT SUM(" + columnAmount + ") FROM " + transactionTable +
+                        " WHERE " + columnUserIdFk + "=?",
+                new String[]{ String.valueOf(uid) }
+        );
+        double total = 0;
+        if (c.moveToFirst()) {
+            total = c.getDouble(0);
+        }
+        c.close();
+        return total;
+    }
+    public static class TransactionRecord {
+        public final int year, month, day;
+        public final double amount;
+        public final String reason;
+
+        public TransactionRecord(int y, int m, int d, double amt, String rsn) {
+            year = y; month = m; day = d;
+            amount = amt; reason = rsn;
+        }
+    }
+
+    /**
+     * Fetch all transactions for the given user, most recent first.
+     */
+    @SuppressLint("Range")
+    public List<TransactionRecord> getAllTransactions(int uid) {
+        List<TransactionRecord> list = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT " + columnTranYear + "," + columnTranMonth + "," + columnTranDay + "," +
+                        columnAmount + "," + columnReason +
+                        " FROM " + transactionTable +
+                        " WHERE " + columnUserIdFk + "=?"
+                        + " ORDER BY " + columnTranYear + " DESC, "
+                        + columnTranMonth + " DESC, " + columnTranDay + " DESC",
+                new String[]{ String.valueOf(uid) }
+        );
+        while (c.moveToNext()) {
+            int y = c.getInt(0);
+            int m = c.getInt(1);
+            int d = c.getInt(2);
+            double amt = c.getDouble(3);
+            String rsn = c.getString(4);
+            list.add(new TransactionRecord(y, m, d, amt, rsn));
+        }
+        c.close();
+        return list;
     }
 }
