@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class viewJournalActivity extends AppCompatActivity {
 
@@ -36,7 +37,9 @@ public class viewJournalActivity extends AppCompatActivity {
         dateLabel.setText("Journal: " + year + "-" + month + "-" + day);
 
         // Entries for the specific date to view
-        ArrayList<String> entries = db.getJournalEntries(userId, year, month, day);
+        // preferred: use interface type
+        List<String> entries = db.getJournalEntries(userId, year, month, day);
+
 
         // displaying the entries
         if (!entries.isEmpty()) {

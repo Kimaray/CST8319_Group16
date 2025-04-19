@@ -6,83 +6,58 @@
     android:id="@+id/createGoalLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".CreateGoalActivity">
 
-    <!-- DatePicker for selecting the goal date -->
-    <DatePicker
-        android:id="@+id/datePicker"
-        android:layout_width="wrap_content"
+    <!-- Goal amount input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/goalLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- EditText for entering the goal type (as a number) -->
-    <EditText
-        android:id="@+id/goalTypeEditText"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/goalInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter goal amount"
+            android:inputType="numberDecimal" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Description input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/descriptionLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter goal type (number)"
-        android:inputType="number"
-        app:layout_constraintTop_toBottomOf="@id/datePicker"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/goalLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- EditText for entering the goal value -->
-    <EditText
-        android:id="@+id/valueEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter goal value"
-        android:inputType="numberDecimal"
-        app:layout_constraintTop_toBottomOf="@id/goalTypeEditText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/descriptionInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter description"
+            android:inputType="textMultiLine" />
 
-    <!-- EditText for entering current savings -->
-    <EditText
-        android:id="@+id/savingsEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter current savings"
-        android:inputType="numberDecimal"
-        app:layout_constraintTop_toBottomOf="@id/valueEditText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- EditText for entering a goal description -->
-    <EditText
-        android:id="@+id/descriptionEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter goal description"
-        android:inputType="textMultiLine"
-        app:layout_constraintTop_toBottomOf="@id/savingsEditText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
-
-    <!-- Save button -->
-    <Button
+    <!-- Save Goal button -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/saveButton"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Save Goal"
-        app:layout_constraintTop_toBottomOf="@id/descriptionEditText"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/descriptionLayout"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"/>
-
-    <!-- Cancel button -->
-    <Button
-        android:id="@+id/cancelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back"
-        app:layout_constraintTop_toBottomOf="@id/descriptionEditText"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

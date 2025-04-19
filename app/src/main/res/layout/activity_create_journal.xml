@@ -2,55 +2,97 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/createJournalLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateJournalActivity">
+    android:padding="16dp"
+    android:background="@color/background_light">
 
-    <!-- DatePicker for selecting the date of the journal entry -->
-    <DatePicker
-        android:id="@+id/datePicker"
-        android:layout_width="wrap_content"
+    <!-- Date Picker Trigger -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/dateCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+        <Button
+            android:id="@+id/dateButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Date" />
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- EditText for journal content -->
-    <EditText
-        android:id="@+id/journalContentsEditText"
+    <!-- Amount Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/amountLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:hint="Enter a journal entry..."
-        app:layout_constraintTop_toBottomOf="@id/datePicker"
+        android:layout_height="wrap_content"
+        android:hint="Amount"
+        app:layout_constraintTop_toBottomOf="@id/dateCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="#BBDEFB"
-        android:padding="10dp"
-        android:inputType="textMultiLine"
-        android:maxLines="10"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/amountInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Save button -->
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save Journal Entry"
-        app:layout_constraintTop_toBottomOf="@id/journalContentsEditText"
+    <!-- Description Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/descriptionLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="Description"
+        app:layout_constraintTop_toBottomOf="@id/amountLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintBottom_toTopOf="@id/buttonChain"
+        android:layout_marginTop="16dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/descriptionInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textMultiLine"
+            android:maxLines="8"
+            android:gravity="top" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/backToCalendarButton"
-        android:layout_width="wrap_content"
+    <!-- Action Buttons -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/buttonChain"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginTop="16dp">
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/backButton"
+            app:layout_constraintWidth_percent="0.5" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/backButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            app:layout_constraintStart_toEndOf="@+id/saveButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

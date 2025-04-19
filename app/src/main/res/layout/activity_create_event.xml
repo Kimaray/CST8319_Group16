@@ -2,63 +2,78 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/createEventLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateEventActivity">
+    android:padding="16dp"
+    android:background="@color/background_light">
 
-    <!-- DatePicker for selecting the event date -->
-    <DatePicker
-        android:id="@+id/datePicker"
-        android:layout_width="wrap_content"
+    <!-- Calendar Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/dateCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+        <Button
+            android:id="@+id/dateButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Date"
+            android:textColor="@color/primary"/>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- EditText for entering event details -->
-    <EditText
-        android:id="@+id/eventDetailEditText"
+    <!-- Event Detail Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/detailLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter event details"
-        android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/datePicker"
+        android:hint="Event Details"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:layout_constraintTop_toBottomOf="@id/dateCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eventDetailInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- EditText for entering Transaction ID -->
-    <EditText
-        android:id="@+id/transactionIdEditText"
+    <!-- Buttons Row -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter Transaction ID"
-        android:inputType="number"
-        app:layout_constraintTop_toBottomOf="@id/eventDetailEditText"
+        app:layout_constraintTop_toBottomOf="@id/detailLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="24dp">
 
-    <!-- Save button -->
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save Event"
-        app:layout_constraintTop_toBottomOf="@id/transactionIdEditText"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/cancelButton"
+            app:layout_constraintWidth_percent="0.5"/>
 
-    <!-- Cancel button -->
-    <Button
-        android:id="@+id/cancelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back"
-        app:layout_constraintTop_toBottomOf="@id/transactionIdEditText"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancelButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            app:layout_constraintStart_toEndOf="@id/saveButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.5"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
