@@ -22,9 +22,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+
     <!-- Calendar Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/calendarCard"
+
+        <TextView
+            android:id="@+id/currentDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Today's Date"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/title"
+            android:layout_marginTop="8dp"/>
+
+    <!-- MaterialCalendarView -->
+    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+        android:id="@+id/calendarView"
+
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginTop="16dp"

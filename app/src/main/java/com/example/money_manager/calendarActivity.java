@@ -12,7 +12,6 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class calendarActivity extends AppCompatActivity {
+
     private static final String CHANNEL_ID = "today_reminders";
     private static final int REQ_NOTIF = 1001;
 
@@ -45,6 +45,20 @@ public class calendarActivity extends AppCompatActivity {
     private int selectedYear = 0;
     private int selectedMonth = 0;
     private int selectedDay = 0;
+
+
+    TextView title;
+    Button logoutButton, showEventsButton, showGoalsButton, createEventButton, viewJournalButton, createJournalButton, createGoalButton, createTransactionButton;
+    int userId;
+    databaseControl databaseControl;
+    MaterialCalendarView calendarView;
+    CalendarDataFetcher dataFetcher;
+    int selectedYear = 0;
+    int selectedMonth = 0;
+    int selectedDay = 0;
+    TextView currentDateTextView;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +77,19 @@ public class calendarActivity extends AppCompatActivity {
        // createJournalButton = findViewById(R.id.createJournal);
         createGoalButton = findViewById(R.id.createGoal);
         createTransactionButton = findViewById(R.id.createTransactionButton);
+
         calendarView = findViewById(R.id.calendarView);
+
+        currentDateTextView = findViewById(R.id.currentDateTextView);
+
+        //These are for getting current date
+        Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH) +1 ;//Month is 0 indexed
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        String currentDate = "Date is: " + String.format("%02d", currentMonth) +"/" + String.format("%02d",currentDay) + "/" + currentYear;
+        currentDateTextView.setText(currentDate);
 
         userId = getIntent().getIntExtra("user_id", -1);
 
