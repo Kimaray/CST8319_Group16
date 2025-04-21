@@ -75,7 +75,8 @@ public class CreateGoalActivity extends AppCompatActivity {
                 year,
                 target,
                 currentSavings,
-                desc
+                desc,
+                0 //This is to set the goalstatus as 0 by default
         );
         if (id > 0) {
             Toast.makeText(this, "Goal saved", Toast.LENGTH_SHORT).show();

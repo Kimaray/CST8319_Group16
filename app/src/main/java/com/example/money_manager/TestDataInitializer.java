@@ -35,7 +35,7 @@ public class TestDataInitializer {
                 // Sample event
                 db.insertEvent(userId, month, day, year, "Sample Event for " + username);
                 // Sample goal
-                db.insertGoal(userId, 1, month, day, year, 500.00, 50.00, "Sample Goal for " + username);
+                db.insertGoal(userId, 1, month, day, year, 500.00, 50.00, "Sample Goal for " + username, 0);
             }
         }
     }

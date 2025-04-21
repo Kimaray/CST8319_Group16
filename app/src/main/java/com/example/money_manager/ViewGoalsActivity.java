@@ -56,13 +56,14 @@ public class ViewGoalsActivity extends AppCompatActivity {
         ArrayList<String> goals = new ArrayList<>();
         SQLiteDatabase db = dbControl.getReadableDatabase();
 
-        // Query the goal table for month, day, year, value, savings, and description for the current user
+        // Query the goal table for month, day, year, value, savings, description and status for the current user
         String query = "SELECT " + databaseControl.columnGoalMonth + ", " +
                 databaseControl.columnGoalDay + ", " +
                 databaseControl.columnGoalYear + ", " +
                 databaseControl.columnValue + ", " +
                 databaseControl.columnSavings + ", " +
-                databaseControl.columnGoalDesc +
+                databaseControl.columnGoalDesc + ", " +
+                databaseControl.columnGoalStatus +
                 " FROM " + databaseControl.goalTable +
                 " WHERE " + databaseControl.columnUserId + " = ?";
 
@@ -76,11 +77,15 @@ public class ViewGoalsActivity extends AppCompatActivity {
                 @SuppressLint("Range") double value = cursor.getDouble(cursor.getColumnIndex(databaseControl.columnValue));
                 @SuppressLint("Range") double savings = cursor.getDouble(cursor.getColumnIndex(databaseControl.columnSavings));
                 @SuppressLint("Range") String desc = cursor.getString(cursor.getColumnIndex(databaseControl.columnGoalDesc));
+                @SuppressLint("Range") int status = cursor.getInt(cursor.getColumnIndex(databaseControl.columnGoalStatus));
+
+                String statusText = (status ==1) ? "Complete" : "Incomplete";
 
                 String goal = "Date: " + month + "/" + day + "/" + year +
                         "\nTarget: $" + value +
                         "\nSavings: $" + savings +
-                        "\n" + desc;
+                        "\n" + desc +
+                        "\n" + statusText;
                 goals.add(goal);
             }
             cursor.close();
