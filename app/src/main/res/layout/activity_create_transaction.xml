@@ -86,6 +86,27 @@
             android:layout_height="wrap_content"
             android:text="Expense" />
     </RadioGroup>
+    <!-- Linked Goal Spinner Label -->
+    <TextView
+        android:id="@+id/goalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Linked Goal (optional)"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/transactionTypeGroup"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Linked Goal Spinner -->
+    <Spinner
+        android:id="@+id/goalSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/goalLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
 
     <!-- Action Buttons -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -105,7 +126,8 @@
             android:text="Save"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/backButton"
-            app:layout_constraintWidth_percent="0.5" />
+            app:layout_constraintWidth_percent="0.5"
+            tools:ignore="MissingConstraints" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/backButton"
@@ -115,7 +137,8 @@
             android:text="Back"
             app:layout_constraintStart_toEndOf="@+id/saveButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintWidth_percent="0.5" />
+            app:layout_constraintWidth_percent="0.5"
+            tools:ignore="MissingConstraints" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,7 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class databaseControl extends SQLiteOpenHelper {
     private static final String databaseName = "database.db";
@@ -48,6 +50,7 @@ public class databaseControl extends SQLiteOpenHelper {
     public static final String columnTranMonth = "tran_month";
     public static final String columnTranDay = "tran_day";
     public static final String columnTranYear = "tran_year";
+    public static final String columnGoalIdFk = "goal_id";
 
     // Goal table
     public static final String goalTable = "goal";
@@ -59,6 +62,7 @@ public class databaseControl extends SQLiteOpenHelper {
     public static final String columnValue = "value";
     public static final String columnSavings = "savings";
     public static final String columnGoalDesc = "description";
+    public static final String columnGoalStatus = "status";
 
     // Enable foreign keys
     private static final String keys = "PRAGMA foreign_keys = ON;";
@@ -102,6 +106,8 @@ public class databaseControl extends SQLiteOpenHelper {
                     columnTranDay + " INT NOT NULL, " +
                     columnTranYear + " INT NOT NULL, " +
                     columnUserIdFk + " INTEGER NOT NULL, " +
+                    columnGoalIdFk + " INTEGER," +
+                    "FOREIGN KEY(" + columnGoalIdFk + ") REFERENCES " + goalTable + "(" +columnGoalId +")," +
                     "FOREIGN KEY(" + columnUserIdFk + ") REFERENCES " + userTable + "(" + columnUserId + "));";
 
     private static final String createGoalTable =
@@ -115,6 +121,7 @@ public class databaseControl extends SQLiteOpenHelper {
                     columnSavings + " DECIMAL(10,2) NOT NULL, " +
                     columnGoalDesc + " TEXT NOT NULL, " +
                     columnUserIdFk + " INTEGER NOT NULL, " +
+                    columnGoalStatus +" INTEGER NOT NULL,"+ //0 for incomplete 1 for complete
                     "FOREIGN KEY(" + columnUserIdFk + ") REFERENCES " + userTable + "(" + columnUserId + "));";
 
     public databaseControl(Context context) {
@@ -257,6 +264,7 @@ public class databaseControl extends SQLiteOpenHelper {
     /**
      * Fetch events on a date
      */
+    @SuppressLint("Range")
     public List<String> getEventsOnDate(int uid, int year, int month, int day) {
         List<String> events = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
@@ -269,9 +277,31 @@ public class databaseControl extends SQLiteOpenHelper {
         return events;
     }
 
+    public Map<Integer, String> getUserGoals(int userId){
+        SQLiteDatabase db = getReadableDatabase();
+        Map<Integer, String> goals = new HashMap<>();
+        String query = "SELECT " + databaseControl.columnGoalId + ", " +
+                databaseControl.columnGoalDesc +
+                " FROM " + databaseControl.goalTable +
+                " WHERE " + databaseControl.columnUserIdFk + " = ? AND " + columnGoalStatus +"= 0";
+        Cursor cursor= db.rawQuery(query, new String[] { String.valueOf(userId) });
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                @SuppressLint("Range") int goalId = cursor.getInt(cursor.getColumnIndex(databaseControl.columnGoalId));
+                @SuppressLint("Range") String goalDesc = cursor.getString(cursor.getColumnIndex(databaseControl.columnGoalDesc));
+
+                goals.put(goalId, goalDesc);
+            }
+            cursor.close();
+        }
+        db.close();
+        return goals;
+    }
+
     /**
      * Fetch goals on a date
      */
+    @SuppressLint("Range")
     public List<String> getGoalsOnDate(int uid, int year, int month, int day) {
         List<String> goals = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
@@ -302,7 +332,7 @@ public class databaseControl extends SQLiteOpenHelper {
     /**
      * Insert goal and return its ID
      */
-    public long insertGoal(int uid, int goalType, int month, int day, int year, double value, double savings, String description) {
+    public long insertGoal(int uid, int goalType, int month, int day, int year, double value, double savings, String description, int status) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues v = new ContentValues();
         v.put(columnGoalType, goalType);
@@ -313,6 +343,7 @@ public class databaseControl extends SQLiteOpenHelper {
         v.put(columnSavings, savings);
         v.put(columnGoalDesc, description);
         v.put(columnUserIdFk, uid);
+        v.put(columnGoalStatus, status);
         return db.insert(goalTable, null, v);
     }
     public long insertTransaction(int uid, int year, int month, int day, double amount, String reason) {
@@ -379,5 +410,26 @@ public class databaseControl extends SQLiteOpenHelper {
         }
         c.close();
         return list;
+    }
+
+    public void updateStatus(int goalId){
+        SQLiteDatabase db = getWritableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT " + columnSavings + ", " + columnValue + " FROM " + goalTable +
+                        " WHERE " + columnGoalId + " = ?",
+                new String[]{ String.valueOf(goalId) }
+        );
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") double savings = cursor.getDouble(cursor.getColumnIndex(columnSavings));
+            @SuppressLint("Range") double value = cursor.getDouble(cursor.getColumnIndex(columnValue));
+
+            if (savings >= value) {
+                ContentValues values = new ContentValues();
+                values.put(columnGoalStatus, 1);
+                db.update(goalTable, values, columnGoalId + "=?", new String[] { String.valueOf(goalId)});
+            }
+        }
+        cursor.close();
     }
 }

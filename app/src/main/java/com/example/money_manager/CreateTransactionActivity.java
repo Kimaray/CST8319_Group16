@@ -6,15 +6,22 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
+import java.util.Map;
 
 public class CreateTransactionActivity extends AppCompatActivity {
     private databaseControl dbControl;
@@ -23,6 +30,9 @@ public class CreateTransactionActivity extends AppCompatActivity {
     private RadioGroup transactionTypeGroup;
     private int userId;
     private int selYear, selMonth, selDay;
+    private Spinner goalSpinner;
+    ArrayList<String> goalLabels = new ArrayList<>();
+    ArrayList<Integer> goalIds = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +48,20 @@ public class CreateTransactionActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         backButton = findViewById(R.id.backButton);
 
+
+
+        goalSpinner = findViewById(R.id.goalSpinner);
         userId = getIntent().getIntExtra("user_id", -1);
+        goalLabels.add("No goal");
+        goalIds.add(-1);  // Add default 'No goal'
+        Map<Integer, String> userGoals = dbControl.getUserGoals(userId);
+        for (Map.Entry<Integer, String> entry : userGoals.entrySet()) {
+            goalLabels.add(entry.getValue());
+            goalIds.add(entry.getKey());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, goalLabels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        goalSpinner.setAdapter(adapter);
 
         // Initialize date to today
         Calendar c = Calendar.getInstance();
@@ -91,7 +114,12 @@ public class CreateTransactionActivity extends AppCompatActivity {
         long result = dbControl.insertTransaction(userId, selYear, selMonth + 1, selDay, amount, reason);
         if (result != -1) {
             // Optionally update latest goal savings
-            updateLatestGoalSavings(amount);
+            int selectedGoalIndex = goalSpinner.getSelectedItemPosition();
+            int selectedGoalId = goalIds.get(selectedGoalIndex);
+            if (selectedGoalId != -1) {
+                // Only update savings if a valid goal is selected
+                updateLatestGoalSavings(amount, selectedGoalId);
+            }
             Toast.makeText(this, "Transaction saved", Toast.LENGTH_SHORT).show();
             finish();
         } else {
@@ -99,24 +127,52 @@ public class CreateTransactionActivity extends AppCompatActivity {
         }
     }
 
-    private void updateLatestGoalSavings(double amount) {
+    private void updateLatestGoalSavings(double amount, int selectedGoalId) {
         SQLiteDatabase db = dbControl.getWritableDatabase();
-        String query = "SELECT " + databaseControl.columnSavings + ", " + databaseControl.columnGoalId +
-                " FROM " + databaseControl.goalTable +
-                " WHERE " + databaseControl.columnUserId + "=? ORDER BY " +
-                databaseControl.columnGoalYear + " DESC, " +
-                databaseControl.columnGoalMonth + " DESC, " +
-                databaseControl.columnGoalDay + " DESC LIMIT 1";
-        Cursor c = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        Cursor c;
+        if (selectedGoalId != -1) {
+            // Use the selected goal ID from the spinner
+            String query = "SELECT " + databaseControl.columnSavings + ", " +
+                    databaseControl.columnValue + ", " +
+                    databaseControl.columnGoalId +
+                    " FROM " + databaseControl.goalTable +
+                    " WHERE " + databaseControl.columnUserId + "=? AND " +
+                    databaseControl.columnGoalId + "=?";
+            c = db.rawQuery(query, new String[]{
+                    String.valueOf(userId), String.valueOf(selectedGoalId)
+            });
+        } else {
+            // Fallback to the latest goal by date
+            String query = "SELECT " + databaseControl.columnSavings + ", " +
+                    databaseControl.columnValue + ", " +
+                    databaseControl.columnGoalId +
+                    " FROM " + databaseControl.goalTable +
+                    " WHERE " + databaseControl.columnUserId + "=? ORDER BY " +
+                    databaseControl.columnGoalYear + " DESC, " +
+                    databaseControl.columnGoalMonth + " DESC, " +
+                    databaseControl.columnGoalDay + " DESC LIMIT 1";
+            c = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        }
+
         if (c.moveToFirst()) {
-            @SuppressLint("Range") double current = c.getDouble(c.getColumnIndex(databaseControl.columnSavings));
+            @SuppressLint("Range") double currentSavings = c.getDouble(c.getColumnIndex(databaseControl.columnSavings));
+            @SuppressLint("Range") double target = c.getDouble(c.getColumnIndex(databaseControl.columnValue));
             @SuppressLint("Range") int gid = c.getInt(c.getColumnIndex(databaseControl.columnGoalId));
-            double updated = current + amount;
+
+            double updatedSavings = currentSavings + amount;
+
+            // Update the savings
             android.content.ContentValues vals = new android.content.ContentValues();
-            vals.put(databaseControl.columnSavings, updated);
+            vals.put(databaseControl.columnSavings, updatedSavings);
+
+            // If the updated savings exceed or match the goal target, update the goal status to 1 (complete)
+            if (updatedSavings >= target) {
+                vals.put(databaseControl.columnGoalStatus, 1);  // Set status to 1 (complete)
+            }
+
             db.update(databaseControl.goalTable, vals,
                     databaseControl.columnGoalId + "=?", new String[]{String.valueOf(gid)});
+            dbControl.updateStatus(selectedGoalId);
         }
-        c.close();
     }
 }
