@@ -1,24 +1,38 @@
 package com.example.money_manager;
 
-import android.content.ContentValues;
+import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class CreateTransactionActivity extends AppCompatActivity {
+import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.Calendar;
+import java.util.Map;
+
+public class CreateTransactionActivity extends AppCompatActivity {
     private databaseControl dbControl;
-    private EditText amountEditText;
-    private EditText reasonEditText;
-    private DatePicker datePicker;
-    private Button saveButton;
+    private Button dateButton, saveButton, backButton;
+    private TextInputEditText amountInput, reasonInput;
+    private RadioGroup transactionTypeGroup;
     private int userId;
-    private int eventId; // This should be passed or determined from your app logic
+    private int selYear, selMonth, selDay;
+    private Spinner goalSpinner;
+    ArrayList<String> goalLabels = new ArrayList<>();
+    ArrayList<Integer> goalIds = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,44 +40,86 @@ public class CreateTransactionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_transaction);
 
         dbControl = new databaseControl(this);
-        amountEditText = findViewById(R.id.amountEditText);
-        reasonEditText = findViewById(R.id.reasonEditText);
-        datePicker = findViewById(R.id.datePicker);
-        saveButton = findViewById(R.id.saveButton);
 
-        // Get the user_id passed from the previous activity
+        dateButton = findViewById(R.id.dateButton);
+        amountInput = findViewById(R.id.amountInput);
+        reasonInput = findViewById(R.id.reasonInput);
+        transactionTypeGroup = findViewById(R.id.transactionTypeGroup);
+        saveButton = findViewById(R.id.saveButton);
+        backButton = findViewById(R.id.backButton);
+
+
+
+        goalSpinner = findViewById(R.id.goalSpinner);
         userId = getIntent().getIntExtra("user_id", -1);
-        // Get the event_id if applicable; otherwise, set a valid default.
-        eventId = getIntent().getIntExtra("event_id", 0);
+        goalLabels.add("No goal");
+        goalIds.add(-1);  // Add default 'No goal'
+        Map<Integer, String> userGoals = dbControl.getUserGoals(userId);
+        for (Map.Entry<Integer, String> entry : userGoals.entrySet()) {
+            goalLabels.add(entry.getValue());
+            goalIds.add(entry.getKey());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, goalLabels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        goalSpinner.setAdapter(adapter);
+
+        // Initialize date to today
+        Calendar c = Calendar.getInstance();
+        selYear = c.get(Calendar.YEAR);
+        selMonth = c.get(Calendar.MONTH);
+        selDay = c.get(Calendar.DAY_OF_MONTH);
+        updateDateText();
+
+        dateButton.setOnClickListener(v -> new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    selYear = year;
+                    selMonth = month;
+                    selDay = dayOfMonth;
+                    updateDateText();
+                }, selYear, selMonth, selDay
+        ).show());
 
         saveButton.setOnClickListener(v -> saveTransaction());
+        backButton.setOnClickListener(v -> finish());
+    }
+
+    private void updateDateText() {
+        dateButton.setText(String.format("%04d-%02d-%02d", selYear, selMonth + 1, selDay));
     }
 
     private void saveTransaction() {
-        String amountString = amountEditText.getText().toString().trim();
-        String reason = reasonEditText.getText().toString().trim();
-
-        if (amountString.isEmpty() || reason.isEmpty()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+        String amtStr = amountInput.getText().toString().trim();
+        String reason = reasonInput.getText().toString().trim();
+        if (amtStr.isEmpty() || reason.isEmpty()) {
+            Toast.makeText(this, "Enter amount and reason", Toast.LENGTH_SHORT).show();
             return;
         }
-
         double amount;
         try {
-            amount = Double.parseDouble(amountString);
+            amount = Double.parseDouble(amtStr);
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show();
             return;
         }
+        int selectedId = transactionTypeGroup.getCheckedRadioButtonId();
+        if (selectedId == -1) {
+            Toast.makeText(this, "Select Income or Expense", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        boolean isIncome = (selectedId == R.id.radioIncome);
+        if (!isIncome) amount = -amount;
 
-        // Get the date from the DatePicker (note: month is 0-indexed)
-        int day = datePicker.getDayOfMonth();
-        int month = datePicker.getMonth() + 1;
-        int year = datePicker.getYear();
-
-        // Insert the transaction into the database
-        boolean inserted = insertTransaction(userId, eventId, amount, reason, month, day, year);
-        if (inserted) {
+        // Save to transactions table
+        long result = dbControl.insertTransaction(userId, selYear, selMonth + 1, selDay, amount, reason);
+        if (result != -1) {
+            // Optionally update latest goal savings
+            int selectedGoalIndex = goalSpinner.getSelectedItemPosition();
+            int selectedGoalId = goalIds.get(selectedGoalIndex);
+            if (selectedGoalId != -1) {
+                // Only update savings if a valid goal is selected
+                updateLatestGoalSavings(amount, selectedGoalId);
+            }
             Toast.makeText(this, "Transaction saved", Toast.LENGTH_SHORT).show();
             finish();
         } else {
@@ -71,18 +127,52 @@ public class CreateTransactionActivity extends AppCompatActivity {
         }
     }
 
-    private boolean insertTransaction(int userId, int eventId, double amount, String reason, int month, int day, int year) {
+    private void updateLatestGoalSavings(double amount, int selectedGoalId) {
         SQLiteDatabase db = dbControl.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(databaseControl.columnAmount, amount);
-        values.put(databaseControl.columnReason, reason);
-        values.put(databaseControl.columnTranMonth, month);
-        values.put(databaseControl.columnTranDay, day);
-        values.put(databaseControl.columnTranYear, year);
-        values.put(databaseControl.columnUserId, userId);
-        values.put(databaseControl.columnEventId, eventId);
+        Cursor c;
+        if (selectedGoalId != -1) {
+            // Use the selected goal ID from the spinner
+            String query = "SELECT " + databaseControl.columnSavings + ", " +
+                    databaseControl.columnValue + ", " +
+                    databaseControl.columnGoalId +
+                    " FROM " + databaseControl.goalTable +
+                    " WHERE " + databaseControl.columnUserId + "=? AND " +
+                    databaseControl.columnGoalId + "=?";
+            c = db.rawQuery(query, new String[]{
+                    String.valueOf(userId), String.valueOf(selectedGoalId)
+            });
+        } else {
+            // Fallback to the latest goal by date
+            String query = "SELECT " + databaseControl.columnSavings + ", " +
+                    databaseControl.columnValue + ", " +
+                    databaseControl.columnGoalId +
+                    " FROM " + databaseControl.goalTable +
+                    " WHERE " + databaseControl.columnUserId + "=? ORDER BY " +
+                    databaseControl.columnGoalYear + " DESC, " +
+                    databaseControl.columnGoalMonth + " DESC, " +
+                    databaseControl.columnGoalDay + " DESC LIMIT 1";
+            c = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        }
 
-        long result = db.insert(databaseControl.transactionTable, null, values);
-        return result != -1;
+        if (c.moveToFirst()) {
+            @SuppressLint("Range") double currentSavings = c.getDouble(c.getColumnIndex(databaseControl.columnSavings));
+            @SuppressLint("Range") double target = c.getDouble(c.getColumnIndex(databaseControl.columnValue));
+            @SuppressLint("Range") int gid = c.getInt(c.getColumnIndex(databaseControl.columnGoalId));
+
+            double updatedSavings = currentSavings + amount;
+
+            // Update the savings
+            android.content.ContentValues vals = new android.content.ContentValues();
+            vals.put(databaseControl.columnSavings, updatedSavings);
+
+            // If the updated savings exceed or match the goal target, update the goal status to 1 (complete)
+            if (updatedSavings >= target) {
+                vals.put(databaseControl.columnGoalStatus, 1);  // Set status to 1 (complete)
+            }
+
+            db.update(databaseControl.goalTable, vals,
+                    databaseControl.columnGoalId + "=?", new String[]{String.valueOf(gid)});
+            dbControl.updateStatus(selectedGoalId);
+        }
     }
 }

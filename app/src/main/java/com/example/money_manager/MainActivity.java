@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        TestDataInitializer.initialize(this);
 
         loginButton = findViewById(R.id.loginbutton);
         shutdownButton = findViewById(R.id.shutdown);

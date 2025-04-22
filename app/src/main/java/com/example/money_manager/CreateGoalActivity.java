@@ -1,113 +1,95 @@
 package com.example.money_manager;
 
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.money_manager.NotificationHelper;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.WindowInsetsCompat;
 
-public class  CreateGoalActivity extends AppCompatActivity {
+import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.Calendar;
+
+public class CreateGoalActivity extends AppCompatActivity {
     private databaseControl dbControl;
-    private DatePicker datePicker;
-    private EditText goalTypeEditText;
-    private EditText valueEditText;
-    private EditText savingsEditText;
-    private EditText descriptionEditText;
-    private Button saveButton, cancelButton;
+    private TextInputEditText goalInput;
+    private TextInputEditText descriptionInput;
+    private Button saveButton;
     private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Use the original XML layout
         setContentView(R.layout.activity_create_goal);
 
-        dbControl = new databaseControl(this);
-        datePicker = findViewById(R.id.datePicker);
-        goalTypeEditText = findViewById(R.id.goalTypeEditText);
-        valueEditText = findViewById(R.id.valueEditText);
-        savingsEditText = findViewById(R.id.savingsEditText);
-        descriptionEditText = findViewById(R.id.descriptionEditText);
-        saveButton = findViewById(R.id.saveButton);
-        cancelButton = findViewById(R.id.cancelButton);
-
-        // Get the user id passed from the previous activity
+        // Get user and db
         userId = getIntent().getIntExtra("user_id", -1);
+        dbControl = new databaseControl(this);
+
+        // Bind views (original IDs in activity_create_goal.xml)
+        goalInput = findViewById(R.id.goalInput);
+        descriptionInput = findViewById(R.id.descriptionInput);
+        saveButton = findViewById(R.id.saveButton);
 
         saveButton.setOnClickListener(v -> saveGoal());
-        cancelButton.setOnClickListener(v -> finish());
+
+        // Apply window insets
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.createGoalLayout), (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return insets;
+        });
     }
 
     private void saveGoal() {
-        String goalTypeStr = goalTypeEditText.getText().toString().trim();
-        String valueStr = valueEditText.getText().toString().trim();
-        String savingsStr = savingsEditText.getText().toString().trim();
-        String description = descriptionEditText.getText().toString().trim();
-
-        if (goalTypeStr.isEmpty() || valueStr.isEmpty() || savingsStr.isEmpty() || description.isEmpty()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+        String goalStr = goalInput.getText().toString().trim();
+        String desc = descriptionInput.getText().toString().trim();
+        if (goalStr.isEmpty() || desc.isEmpty()) {
+            Toast.makeText(this, "Please enter a goal and description", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        int goalType;
+        double target;
         try {
-            goalType = Integer.parseInt(goalTypeStr);
+            target = Double.parseDouble(goalStr);
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid goal type", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid goal amount", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        double value, savings;
-        try {
-            value = Double.parseDouble(valueStr);
-            savings = Double.parseDouble(savingsStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid numeric values", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Auto-calc current savings
+        double currentSavings = dbControl.getTransactionRunningTotal(userId);
+        // Today’s date
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH) + 1;
+        int day = c.get(Calendar.DAY_OF_MONTH);
 
-        // Retrieve the selected date (DatePicker months are 0-indexed, so add 1)
-        int day = datePicker.getDayOfMonth();
-        int month = datePicker.getMonth() + 1;
-        int year = datePicker.getYear();
-
-        boolean inserted = insertGoal(userId, goalType, month, day, year, value, savings, description);
-        if (inserted) {
-            NotificationHelper.createNotificationChannel(this);
+        long id = dbControl.insertGoal(
+                userId,
+                0, // type unused
+                month,
+                day,
+                year,
+                target,
+                currentSavings,
+                desc,
+                0 //This is to set the goalstatus as 0 by default
+        );
+        if (id > 0) {
+          NotificationHelper.createNotificationChannel(this);
             NotificationHelper.sendNotification(
                     this,
                     "Goal Created",
                     "You've successfully created a new goal!"
             );
-            Toast.makeText(this, "Goal created", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Goal saved", Toast.LENGTH_SHORT).show();
             finish();
         } else {
-            Toast.makeText(this, "Error creating goal", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error saving goal", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private boolean insertGoal(int userId, int goalType, int month, int day, int year, double value, double savings, String description) {
-        SQLiteDatabase db = dbControl.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(databaseControl.columnGoalType, goalType);
-        values.put(databaseControl.columnGoalMonth, month);
-        values.put(databaseControl.columnGoalDay, day);
-        values.put(databaseControl.columnGoalYear, year);
-        values.put(databaseControl.columnValue, value);
-        values.put(databaseControl.columnSavings, savings);
-        values.put(databaseControl.columnGoalDesc, description);
-        // journal_id and tran_id are optional; we set them as null here
-        values.putNull(databaseControl.columnJournalId);
-        values.putNull(databaseControl.columnTranId);
-        values.put(databaseControl.columnUserId, userId);
-
-        long result = db.insert(databaseControl.goalTable, null, values);
-        return result != -1;
     }
 }

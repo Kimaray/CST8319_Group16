@@ -1,87 +1,79 @@
 package com.example.money_manager;
 
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.Calendar;
+
 public class CreateEventActivity extends AppCompatActivity {
 
     private databaseControl dbControl;
-    private DatePicker datePicker;
-    private EditText eventDetailEditText;
-    private EditText transactionIdEditText;
-    private Button saveButton, cancelButton; // Added cancelButton
-    private int userId; // Passed from the previous activity
+    private Button dateButton;
+    private TextInputEditText detailInput;
+    private Button saveButton, cancelButton;
+    private int userId;
+    private int selYear, selMonth, selDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 
-        dbControl = new databaseControl(this);
-        datePicker = findViewById(R.id.datePicker);
-        eventDetailEditText = findViewById(R.id.eventDetailEditText);
-        transactionIdEditText = findViewById(R.id.transactionIdEditText);
+        userId     = getIntent().getIntExtra("user_id", -1);
+        dbControl  = new databaseControl(this);
+
+        dateButton = findViewById(R.id.dateButton);
+        detailInput= findViewById(R.id.eventDetailInput);
         saveButton = findViewById(R.id.saveButton);
-        cancelButton = findViewById(R.id.cancelButton);  // Initialize the cancel button
+        cancelButton = findViewById(R.id.cancelButton);
 
-        // Get the user ID from the previous activity
-        userId = getIntent().getIntExtra("user_id", -1);
+        // initialize to today
+        Calendar c = Calendar.getInstance();
+        selYear = c.get(Calendar.YEAR);
+        selMonth = c.get(Calendar.MONTH);
+        selDay = c.get(Calendar.DAY_OF_MONTH);
+        updateDateButtonText();
 
-        saveButton.setOnClickListener(v -> saveEvent());
-        // Cancel button listener simply finishes the activity
+        dateButton.setOnClickListener(v -> {
+            new DatePickerDialog(this,
+                    (DatePicker dp, int y, int m, int d) -> {
+                        selYear = y; selMonth = m; selDay = d;
+                        updateDateButtonText();
+                    },
+                    selYear, selMonth, selDay)
+                    .show();
+        });
+
+        saveButton.setOnClickListener(v -> {
+            String detail = detailInput.getText().toString().trim();
+            if (detail.isEmpty()) {
+                Toast.makeText(this, "Please enter event details", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            long id = dbControl.insertEvent(userId,
+                    selMonth+1, selDay, selYear, detail);
+            if (id>0) {
+                Toast.makeText(this, "Event saved (ID="+id+")", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "Failed to save event", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         cancelButton.setOnClickListener(v -> finish());
     }
 
-    private void saveEvent() {
-        String eventDetail = eventDetailEditText.getText().toString().trim();
-        String transactionIdStr = transactionIdEditText.getText().toString().trim();
-
-        if (eventDetail.isEmpty() || transactionIdStr.isEmpty()) {
-            Toast.makeText(CreateEventActivity.this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int transactionId;
-        try {
-            transactionId = Integer.parseInt(transactionIdStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(CreateEventActivity.this, "Invalid Transaction ID", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Retrieve the selected date (DatePicker months are 0-indexed)
-        int day = datePicker.getDayOfMonth();
-        int month = datePicker.getMonth() + 1;
-        int year = datePicker.getYear();
-
-        boolean inserted = insertEvent(userId, transactionId, month, day, year, eventDetail);
-        if (inserted) {
-            Toast.makeText(CreateEventActivity.this, "Event created", Toast.LENGTH_SHORT).show();
-            finish();
-        } else {
-            Toast.makeText(CreateEventActivity.this, "Error creating event", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private boolean insertEvent(int userId, int transactionId, int month, int day, int year, String detail) {
-        SQLiteDatabase db = dbControl.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(databaseControl.columnEventMonth, month);
-        values.put(databaseControl.columnEventDay, day);
-        values.put(databaseControl.columnEventYear, year);
-        values.put(databaseControl.columnEventDetail, detail);
-        values.put(databaseControl.columnUserId, userId);
-        values.put(databaseControl.columnTranId, transactionId);
-        // The journal_id is optional; it's not included here
-
-        long result = db.insert(databaseControl.eventTable, null, values);
-        return result != -1;
+    private void updateDateButtonText() {
+        dateButton.setText(
+                String.format("%04d-%02d-%02d", selYear, selMonth+1, selDay));
     }
 }
