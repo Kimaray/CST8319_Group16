@@ -435,16 +435,14 @@ public class databaseControl extends SQLiteOpenHelper {
         cursor.close();
     }
 
-    public List<Goal> getUserGoals(int userId) {
+    public List<Goal> getGoals(int userId) {
         List<Goal> goals = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-
         Cursor cursor = db.rawQuery(
                 "SELECT " + columnGoalDay + ", " + columnGoalMonth + ", " + columnGoalYear +
                         " FROM " + goalTable + " WHERE " + columnUserId + " = ?",
                 new String[]{String.valueOf(userId)}
         );
-
         if (cursor.moveToFirst()) {
             do {
                 int day = cursor.getInt(0);
@@ -453,9 +451,9 @@ public class databaseControl extends SQLiteOpenHelper {
                 goals.add(new Goal(day, month, year));
             } while (cursor.moveToNext());
         }
-
         cursor.close();
         return goals;
     }
+
 
 }

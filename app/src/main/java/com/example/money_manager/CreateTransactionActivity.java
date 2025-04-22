@@ -11,9 +11,9 @@ import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
-
+import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.List;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
-import java.util.Map;
 
 public class CreateTransactionActivity extends AppCompatActivity {
     private databaseControl dbControl;

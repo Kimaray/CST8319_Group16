@@ -1,6 +1,7 @@
 package com.example.money_manager;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
@@ -8,10 +9,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -168,9 +168,6 @@ public class calendarActivity extends AppCompatActivity {
     }
 
 
-        // Initial load of decorators
-        refreshCalendarDecorators();
-
     private void requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -190,6 +187,7 @@ public class calendarActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void checkTodayAndNotify() {
         Calendar today = Calendar.getInstance();
         int y = today.get(Calendar.YEAR);
@@ -253,7 +251,7 @@ public class calendarActivity extends AppCompatActivity {
 
 
     private void checkForUpcomingGoals() {
-        List<Goal> userGoals = databaseControl.getUserGoals(userId);
+        List<Goal> userGoals = databaseControl.getGoals(userId);
         Calendar today = Calendar.getInstance();
 
         for (Goal goal : userGoals) {
