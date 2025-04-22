@@ -1,5 +1,4 @@
 package com.example.money_manager;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -39,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         TestDataInitializer.initialize(this);
-
+        NotificationUtils.GoalNotificationHelper.createNotificationChannel(this);
         loginButton = findViewById(R.id.loginbutton);
         shutdownButton = findViewById(R.id.shutdown);
         databaseControl = new databaseControl(this);
