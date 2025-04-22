@@ -3,7 +3,7 @@ package com.example.money_manager;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
-
+import com.example.money_manager.NotificationHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.graphics.Insets;
@@ -59,6 +59,7 @@ public class CreateGoalActivity extends AppCompatActivity {
             Toast.makeText(this, "Invalid goal amount", Toast.LENGTH_SHORT).show();
             return;
         }
+
         // Auto-calc current savings
         double currentSavings = dbControl.getTransactionRunningTotal(userId);
         // Today’s date
@@ -79,6 +80,12 @@ public class CreateGoalActivity extends AppCompatActivity {
                 0 //This is to set the goalstatus as 0 by default
         );
         if (id > 0) {
+          NotificationHelper.createNotificationChannel(this);
+            NotificationHelper.sendNotification(
+                    this,
+                    "Goal Created",
+                    "You've successfully created a new goal!"
+            );
             Toast.makeText(this, "Goal saved", Toast.LENGTH_SHORT).show();
             finish();
         } else {

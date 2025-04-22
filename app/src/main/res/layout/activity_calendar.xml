@@ -11,16 +11,19 @@
     tools:context=".calendarActivity">
 
     <!-- Title -->
+
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+
         android:text="Welcome to Money Manager"
         android:textColor="@color/primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <!-- Calendar Card -->
     <com.google.android.material.card.MaterialCardView
@@ -88,12 +91,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintWidth_percent="0.48"/>
 
+
     <!-- Vertical Action Buttons -->
     <com.google.android.material.button.MaterialButton
+
         android:id="@+id/createEvent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Create Event"
+
         android:backgroundTint="@color/secondary"
         android:textColor="@color/onSecondary"
         app:cornerRadius="8dp"

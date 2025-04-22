@@ -85,12 +85,13 @@ public class calendarActivity extends AppCompatActivity {
 
         userId = getIntent().getIntExtra("user_id", -1);
 
+        checkForUpcomingGoals();  // <-- This triggers your due-date notification check
+        
+            // Updates the chosen date from the user
         requestNotificationPermission();
         createNotificationChannel();
         checkTodayAndNotify();
-
         updateTitleBalance();
-
         calendarView.setOnDateChangedListener((widget, date, selected) -> {
             selectedYear = date.getYear();
             selectedMonth = date.getMonth() + 1;
@@ -108,6 +109,9 @@ public class calendarActivity extends AppCompatActivity {
         refreshCalendarDecorators();
     }
 
+
+        // Set button listeners
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -123,6 +127,7 @@ public class calendarActivity extends AppCompatActivity {
     }
 
     private void setupButtonListeners() {
+
         logoutButton.setOnClickListener(v -> {
             startActivity(new Intent(this, MainActivity.class));
             finish();
@@ -161,6 +166,10 @@ public class calendarActivity extends AppCompatActivity {
         i.putExtra("user_id", userId);
         startActivity(i);
     }
+
+
+        // Initial load of decorators
+        refreshCalendarDecorators();
 
     private void requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -240,5 +249,28 @@ public class calendarActivity extends AppCompatActivity {
 
     private void addColors(Map<CalendarDay, List<Integer>> map, List<CalendarDay> days, int color) {
         for (CalendarDay d : days) map.computeIfAbsent(d, k -> new java.util.ArrayList<>()).add(color);
+    }
+
+
+    private void checkForUpcomingGoals() {
+        List<Goal> userGoals = databaseControl.getUserGoals(userId);
+        Calendar today = Calendar.getInstance();
+
+        for (Goal goal : userGoals) {
+            Calendar dueDate = Calendar.getInstance();
+            dueDate.set(goal.getYear(), goal.getMonth() - 1, goal.getDay());  // month is 0-indexed
+
+            long diffInMillis = dueDate.getTimeInMillis() - today.getTimeInMillis();
+            long daysUntilDue = diffInMillis / (1000 * 60 * 60 * 24);
+
+            if (daysUntilDue == 1) {
+                NotificationHelper.createNotificationChannel(this);
+                NotificationHelper.sendNotification(
+                        this,
+                        "Goal Due Soon",
+                        "Your goal is due tomorrow! 🎯"
+                );
+            }
+        }
     }
 }

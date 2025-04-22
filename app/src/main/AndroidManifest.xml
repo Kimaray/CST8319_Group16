@@ -13,6 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Money_Manager"
         tools:targetApi="31">
+
         <activity
             android:name=".createActivity"
             android:exported="false" />
@@ -31,10 +32,10 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".CreateJournalActivity" />
         <activity android:name=".CreateTransactionActivity" />
         <activity android:name=".ViewJournalActivity" />
@@ -43,6 +44,8 @@
         <activity android:name=".ViewEventsActivity" />
         <activity android:name=".ViewGoalsActivity" />
         <activity android:name=".ViewTransactionsActivity" />
+
+
 
     </application>
 
