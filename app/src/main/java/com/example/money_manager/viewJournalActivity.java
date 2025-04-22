@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class viewJournalActivity extends AppCompatActivity {
+public class ViewJournalActivity extends AppCompatActivity {
 
     TextView dateLabel, entryView;
     Button backToCalendarButton;
@@ -53,7 +53,7 @@ public class viewJournalActivity extends AppCompatActivity {
         }
 
         backToCalendarButton.setOnClickListener(v -> {
-            Intent backIntent = new Intent(viewJournalActivity.this, calendarActivity.class);
+            Intent backIntent = new Intent(ViewJournalActivity.this, calendarActivity.class);
             backIntent.putExtra("user_id", userId);
             startActivity(backIntent);
             finish();
